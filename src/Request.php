@@ -82,6 +82,7 @@ class Request{
 			$request_url .= $parsedURL['path'];
 		}
 
+		// @todo POST (more?)
 		if(isset($parsedURL['query']) && !empty($parsedURL['query'])){
 			parse_str($parsedURL['query'], $url_params);
 			$params = array_merge($url_params, $params);
@@ -118,8 +119,8 @@ class Request{
 	protected function extract($url){
 		$response = $this->getResponse($url, [CURLOPT_FOLLOWLOCATION => false]);
 
-		$info    = $response->info();
-		$headers = $response->headers();
+		$info    = $response->info;
+		$headers = $response->headers;
 
 #		preg_match_all('~(http|https)://[^<>[:space:]]+[[:alnum:]#?/&=+%_]~', $response->body(), $body_urls);
 

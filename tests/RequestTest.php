@@ -15,6 +15,11 @@ use chillerlan\TinyCurl\Request;
 
 class RequestTest extends \PHPUnit_Framework_TestCase{
 
+	const GW2_APIKEY = '39519066-20B0-5545-9AE2-71109410A2CAF66348DA-50F7-4ACE-9363-B38FD8EE1881';
+	const GW2_ACC_ID = 'A9EAD53E-4157-E111-BBF3-78E7D1936222';
+	const GW2_GUILD  = '75FD83CF-0C45-4834-BC4C-097F93A487AF';
+	const GW2_CHARS  = 'Skin Receiver';
+
 	/**
 	 * @var \chillerlan\TinyCurl\Request
 	 */
@@ -35,28 +40,44 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->requestNoCA = new Request;
 	}
 
-	public function urlDataProvider(){
+	public function testInstance(){
+		/* ¯\_(ツ)_/¯ */
+
+	}
+
+	public function fetchDataProvider(){
 		return [
-			['https://api.guildwars2.com/v2/account', [], [CURLOPT_HTTPHEADER => ['Authorization: Bearer 39519066-20B0-5545-9AE2-71109410A2CAF66348DA-50F7-4ACE-9363-B38FD8EE1881']]],
-			['https://api.guildwars2.com/v2/account', ['access_token' => '39519066-20B0-5545-9AE2-71109410A2CAF66348DA-50F7-4ACE-9363-B38FD8EE1881'], []],
+			['https://api.guildwars2.com/v2/account', [], [CURLOPT_HTTPHEADER => ['Authorization: Bearer '.self::GW2_APIKEY]]],
+			['https://api.guildwars2.com/v2/account', ['access_token' => self::GW2_APIKEY], []],
 		];
 	}
 
 	/**
-	 * @dataProvider urlDataProvider
+	 * @dataProvider fetchDataProvider
 	 */
-	public function testInstance($url, array $params, array $curl_options){
-		$responseWithCA = $this->requestWithCA->fetch($url, $params, $curl_options);
-		$responseNoCA = $this->requestNoCA->fetch($url, $params, $curl_options);
+	public function testFetchWithCA($url, array $params, array $curl_options){
+		$this->response = $this->requestWithCA->fetch($url, $params, $curl_options);
 
-		/* ¯\_(ツ)_/¯ */
-		$this->assertEquals(200, $responseWithCA->info()->http_code);
-		$this->assertEquals(200, $responseNoCA->info()->http_code);
-		$this->assertEquals('*', $responseWithCA->headers()->{'access-control-allow-origin'});
-		$this->assertEquals('*', $responseNoCA->headers()->{'access-control-allow-origin'});
-		$this->assertEquals('A9EAD53E-4157-E111-BBF3-78E7D1936222', $responseWithCA->json()->id);
-		$this->assertEquals('A9EAD53E-4157-E111-BBF3-78E7D1936222', $responseNoCA->json()->id);
+		$this->assertEquals(0, $this->response->error->code);
+		$this->assertEquals(200, $this->response->info->http_code);
+		$this->assertEquals('*', $this->response->headers->{'access-control-allow-origin'});
+		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
+		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
+
+	/**
+	 * @dataProvider fetchDataProvider
+	 */
+	public function testFetchNoCA($url, array $params, array $curl_options){
+		$this->response = $this->requestNoCA->fetch($url, $params, $curl_options);
+
+		$this->assertEquals(0, $this->response->error->code);
+		$this->assertEquals(200, $this->response->info->http_code);
+		$this->assertEquals('*', $this->response->headers->{'access-control-allow-origin'});
+		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
+		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
+	}
+
 
 	public function shortURLDataProvider(){
 		return [
@@ -87,8 +108,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	/**
 	 * @dataProvider shortURLDataProvider
 	 */
-	public function testExtractShortUrl($expected){
+	public function testExtractShortUrlWithCA($expected){
 		$this->assertEquals($expected, $this->requestWithCA->extractShortUrl($expected[0]));
+	}
+
+	/**
+	 * @dataProvider shortURLDataProvider
+	 */
+	public function testExtractShortUrlNoCA($expected){
+		$this->assertEquals($expected, $this->requestNoCA->extractShortUrl($expected[0]));
 	}
 
 }
