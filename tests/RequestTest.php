@@ -57,7 +57,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
-/*	public function testFetchWithCA($url, array $params, array $curl_options){
+	public function testFetchWithCA($url, array $params, array $curl_options){
 		$this->response = $this->requestWithCA->fetch($url, $params, $curl_options);
 
 		$this->assertEquals(0, $this->response->error->code);
@@ -66,11 +66,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
 		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
-*/
+
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
-/*	public function testFetchNoCA($url, array $params, array $curl_options){
+	public function testFetchNoCA($url, array $params, array $curl_options){
 		$this->response = $this->requestNoCA->fetch($url, $params, $curl_options);
 
 		$this->assertEquals(0, $this->response->error->code);
@@ -79,7 +79,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
 		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
-*/
+
 	public function shortURLDataProvider(){
 		return [
 			[
@@ -116,17 +116,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	/**
 	 * @dataProvider shortURLDataProvider
 	 */
-/*	public function testExtractShortUrlWithCA($expected){
+	public function testExtractShortUrlWithCA($expected){
 		$this->assertEquals($expected, $this->requestWithCA->extractShortUrl($expected[0]));
 	}
-*/
+
 	/**
 	 * @dataProvider shortURLDataProvider
 	 */
-/*	public function testExtractShortUrlNoCA($expected){
+	public function testExtractShortUrlNoCA($expected){
 		$this->assertEquals($expected, $this->requestNoCA->extractShortUrl($expected[0]));
 	}
-*/
+
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
 	 * @expectedExceptionMessage $url
