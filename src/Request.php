@@ -131,7 +131,7 @@ class Request{
 				return $info->redirect_url;
 			// look for a location header
 			case isset($headers->location) && !empty($headers->location):
-				return $headers->location;
+				return $headers->location; // @codeCoverageIgnore
 			// as a fallback, grab the first url we can find in the body - greedy!
 #			case isset($body_urls[0]) && !empty($body_urls[0]):
 #				return $body_urls[0][0];

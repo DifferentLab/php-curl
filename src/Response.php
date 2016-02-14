@@ -24,7 +24,7 @@ use stdClass;
 class Response{
 
 	/**
-	 * @var array
+	 * @var \stdClass
 	 */
 	protected $curl_info;
 
@@ -69,7 +69,7 @@ class Response{
 			case 'json'   : return json_decode($this->response_body);
 			case 'error'  : return $this->response_error;
 			case 'headers': return $this->response_headers;
-			default: throw new ResponseException('!$method: '.$field);
+			default: throw new ResponseException('!$field: '.$field);
 		}
 
 	}
@@ -143,9 +143,11 @@ class Response{
 		if(isset($this->curl_info->content_type) && !empty($this->curl_info->content_type)){
 			$body->content_type = $this->curl_info->content_type;
 		}
+		// @codeCoverageIgnoreStart
 		elseif(isset($this->response_headers->content_type) && !empty($this->response_headers->content_type)){
 			$body->content_type = $this->response_headers->content_type;
 		}
+		// @codeCoverageIgnoreEnd
 
 		return $body;
 	}

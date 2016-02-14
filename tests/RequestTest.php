@@ -12,6 +12,7 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\Request;
+use chillerlan\TinyCurl\Response;
 
 class RequestTest extends \PHPUnit_Framework_TestCase{
 
@@ -49,13 +50,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		return [
 			['https://api.guildwars2.com/v2/account', [], [CURLOPT_HTTPHEADER => ['Authorization: Bearer '.self::GW2_APIKEY]]],
 			['https://api.guildwars2.com/v2/account', ['access_token' => self::GW2_APIKEY], []],
+			['https://api.guildwars2.com/v2/account?lang=de', ['access_token' => self::GW2_APIKEY], []],
 		];
 	}
 
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
-	public function testFetchWithCA($url, array $params, array $curl_options){
+/*	public function testFetchWithCA($url, array $params, array $curl_options){
 		$this->response = $this->requestWithCA->fetch($url, $params, $curl_options);
 
 		$this->assertEquals(0, $this->response->error->code);
@@ -64,11 +66,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
 		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
-
+*/
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
-	public function testFetchNoCA($url, array $params, array $curl_options){
+/*	public function testFetchNoCA($url, array $params, array $curl_options){
 		$this->response = $this->requestNoCA->fetch($url, $params, $curl_options);
 
 		$this->assertEquals(0, $this->response->error->code);
@@ -77,8 +79,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
 		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
-
-
+*/
 	public function shortURLDataProvider(){
 		return [
 			[
@@ -115,15 +116,39 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	/**
 	 * @dataProvider shortURLDataProvider
 	 */
-	public function testExtractShortUrlWithCA($expected){
+/*	public function testExtractShortUrlWithCA($expected){
 		$this->assertEquals($expected, $this->requestWithCA->extractShortUrl($expected[0]));
 	}
-
+*/
 	/**
 	 * @dataProvider shortURLDataProvider
 	 */
-	public function testExtractShortUrlNoCA($expected){
+/*	public function testExtractShortUrlNoCA($expected){
 		$this->assertEquals($expected, $this->requestNoCA->extractShortUrl($expected[0]));
+	}
+*/
+	/**
+	 * @expectedException \chillerlan\TinyCurl\RequestException
+	 * @expectedExceptionMessage $url
+	 */
+	public function testFetchUrlException(){
+		$this->requestWithCA->fetch('');
+	}
+
+	/**
+	 * @expectedException \chillerlan\TinyCurl\ResponseException
+	 * @expectedExceptionMessage $curl
+	 */
+	public function testResponseNoCurlException(){
+		$this->response = new Response(null);
+	}
+
+	/**
+	 * @expectedException \chillerlan\TinyCurl\ResponseException
+	 * @expectedExceptionMessage !$field: foobar
+	 */
+	public function testResponseGetMagicFieldException(){
+		var_dump($this->requestWithCA->fetch('https://api.guildwars2.com/v2/build')->foobar);
 	}
 
 }
