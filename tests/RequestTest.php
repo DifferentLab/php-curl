@@ -51,8 +51,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 
 		$this->assertEquals(200, $responseWithCA->info()->http_code);
 		$this->assertEquals(200, $responseNoCA->info()->http_code);
-		$this->assertEquals('Microsoft-IIS/7.5', $responseWithCA->headers()->server);
-		$this->assertEquals('Microsoft-IIS/7.5', $responseNoCA->headers()->server);
+		$this->assertEquals('Microsoft-IIS/8.5', $responseWithCA->headers()->server);
+		$this->assertEquals('Microsoft-IIS/8.5', $responseNoCA->headers()->server);
 		$this->assertEquals('A9EAD53E-4157-E111-BBF3-78E7D1936222', $responseWithCA->json()->id);
 		$this->assertEquals('A9EAD53E-4157-E111-BBF3-78E7D1936222', $responseNoCA->json()->id);
 
