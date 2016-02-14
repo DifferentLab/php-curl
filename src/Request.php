@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class Request
  *
  * @filesource   Request.php
  * @created      13.02.2016
@@ -12,7 +13,7 @@
 namespace chillerlan\TinyCurl;
 
 /**
- * Class Request
+ *
  */
 class Request{
 
@@ -122,7 +123,7 @@ class Request{
 		$info    = $response->info;
 		$headers = $response->headers;
 
-#		preg_match_all('~(http|https)://[^<>[:space:]]+[[:alnum:]#?/&=+%_]~', $response->body(), $body_urls);
+#		preg_match_all('~(http|https)://[^<>[:space:]]+[[:alnum:]#?/&=+%_]~', $response->body->content, $body_urls);
 
 		switch(true){
 			// check curl_info()

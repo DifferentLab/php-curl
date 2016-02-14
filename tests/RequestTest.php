@@ -83,7 +83,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		return [
 			[
 				[
-					'https://t.co/ZSS6nVOcVp',
+					'https://t.co/YK4EuyMbl3',
+					'http://buff.ly/20TJh3q',
+					'http://www.ebay.com/sch/gillianandersoncharity/m.html?utm_content=buffer5675f&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer',
+				]
+			],
+			[
+				[
+					'https://t.co/ZSS6nVOcVp', // i wonder how long twitter will store this URL since the test tweet has been deleted
 					'http://bit.ly/1oesmr8',
 					'http://tinyurl.com/jvc5y98',
 					'https://api.guildwars2.com/v2/build',

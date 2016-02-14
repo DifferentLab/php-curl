@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class Response
  *
  * @filesource   Response.php
  * @created      13.02.2016
@@ -14,8 +15,6 @@ namespace chillerlan\TinyCurl;
 use stdClass;
 
 /**
- * Class Response
- *
  * @property mixed body
  * @property mixed error
  * @property mixed headers
@@ -23,13 +22,6 @@ use stdClass;
  * @property mixed json
  */
 class Response{
-
-	/**
-	 * The cURL connection
-	 *
-	 * @var resource
-	 */
-	protected $curl;
 
 	/**
 	 * @var array
@@ -42,6 +34,11 @@ class Response{
 	protected $response_headers;
 
 	/**
+	 * @var \stdClass
+	 */
+	protected $response_error;
+
+	/**
 	 * @var mixed
 	 */
 	protected $response_body;
@@ -52,36 +49,10 @@ class Response{
 	 * @param resource $curl
 	 */
 	public function __construct($curl){
-		$this->curl             = $curl;
+		$this->curl_info        = new stdClass;
+		$this->response_error   = new stdClass;
 		$this->response_headers = new stdClass;
-		$this->exec();
-	}
-
-	/**
-	 * @throws \chillerlan\TinyCurl\ResponseException
-	 */
-	protected function exec(){
-		if($this->curl){
-			$options = [
-				CURLOPT_HEADERFUNCTION => [$this, 'headerLine'],
-			];
-
-			curl_setopt_array($this->curl, $options);
-			$this->response_body = curl_exec($this->curl);
-			$this->curl_info     = curl_getinfo($this->curl);
-		}
-		else{
-			throw new ResponseException('$this->curl');
-		}
-	}
-
-	/**
-	 * Farewell
-	 */
-	public function __destruct(){
-		if($this->curl){
-			curl_close($this->curl);
-		}
+		$this->exec($curl);
 	}
 
 	/**
@@ -92,43 +63,46 @@ class Response{
 	 */
 	public function __get($field){
 
-		if(!$this->curl){
-			throw new ResponseException('!$this->curl: '.$field);
-		}
-
 		switch($field){
 			case 'body'   : return $this->getBody();
-			case 'info'   : return $this->getInfo();
+			case 'info'   : return $this->curl_info;
 			case 'json'   : return json_decode($this->response_body);
-#			case 'save'   : return true; // todo
-			case 'error'  : return $this->getErrors();
+			case 'error'  : return $this->response_error;
 			case 'headers': return $this->response_headers;
 			default: throw new ResponseException('!$method: '.$field);
 		}
 
 	}
 
-	protected function getErrors(){
-		$error = new stdClass;
-		$error->code = curl_errno($this->curl);
-		$error->message = curl_error($this->curl);
-
-		return $error;
-	}
-
 	/**
-	 * @return \stdClass
+	 * @param resource $curl
+	 *
+	 * @throws \chillerlan\TinyCurl\ResponseException
+	 * @see self::headerLine()
 	 */
-	protected function getInfo(){
-		$info = new stdClass;
+	protected function exec($curl){
+		if($curl){
+			curl_setopt($curl, CURLOPT_HEADERFUNCTION, [$this, 'headerLine']);
 
-		if(is_array($this->curl_info)){
-			foreach($this->curl_info as $key => $value){
-				$info->{$key} = $value;
+			$this->response_body = curl_exec($curl);
+
+			$this->response_error->code    = curl_errno($curl);
+			$this->response_error->message = curl_error($curl);
+#			$this->response_error->version = curl_version();
+
+			$curl_info = curl_getinfo($curl);
+
+			if(is_array($curl_info)){
+				foreach($curl_info as $key => $value){
+					$this->curl_info->{$key} = $value;
+				}
 			}
-		}
 
-		return $info;
+			curl_close($curl);
+		}
+		else{
+			throw new ResponseException('$curl');
+		}
 	}
 
 	/**
@@ -136,10 +110,12 @@ class Response{
 	 * @param string   $header
 	 *
 	 * @return int
+	 *
+	 * @link http://php.net/manual/function.curl-setopt.php CURLOPT_HEADERFUNCTION
 	 */
-	protected function headerLine($curl, $header){
+	protected function headerLine(/** @noinspection PhpUnusedParameterInspection */ $curl, $header){
 
-		if(substr($header, 0, 4) === 'HTTP') {
+		if(substr($header, 0, 4) === 'HTTP'){
 			$status = explode(' ', $header, 3);
 
 			$this->response_headers->httpversion = explode('/', $status[0], 2)[1];
@@ -162,10 +138,10 @@ class Response{
 		$body = new stdClass;
 
 		$body->content = $this->response_body;
-		$body->length = strlen($this->response_body);
+		$body->length  = strlen($this->response_body);
 
-		if(isset($this->curl_info['content_type']) && !empty($this->curl_info['content_type'])){
-			$body->content_type = $this->curl_info['content_type'];
+		if(isset($this->curl_info->content_type) && !empty($this->curl_info->content_type)){
+			$body->content_type = $this->curl_info->content_type;
 		}
 		elseif(isset($this->response_headers->content_type) && !empty($this->response_headers->content_type)){
 			$body->content_type = $this->response_headers->content_type;
