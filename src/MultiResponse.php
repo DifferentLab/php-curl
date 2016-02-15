@@ -1,9 +1,9 @@
 <?php
 /**
- * Class Response
+ * Class MultiResponse
  *
- * @filesource   Response.php
- * @created      13.02.2016
+ * @filesource   MultiResponse.php
+ * @created      15.02.2016
  * @package      chillerlan\TinyCurl
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2016 Smiley
@@ -15,17 +15,18 @@ namespace chillerlan\TinyCurl;
 /**
  *
  */
-class Response extends ResponseBase implements ResponseInterface{
+class MultiResponse extends ResponseBase implements ResponseInterface{
 
 	/**
-	 * Response constructor.
+	 * MultiResponse constructor.
 	 *
 	 * @param resource $curl
+	 * @param          $data
 	 */
-	public function __construct($curl){
+	public function __construct($curl, $data){
 		parent::__construct($curl);
 
-		$this->response_body = curl_exec($this->curl);
+		$this->response_body = curl_exec($data);
 		$this->getInfo();
 		curl_close($this->curl);
 	}

@@ -41,7 +41,7 @@ class Request{
 	 * @param string $url
 	 * @param array  $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response
+	 * @return ResponseInterface
 	 */
 	protected function getResponse($url, array $curl_options){
 		$curl = curl_init($url);
@@ -62,7 +62,7 @@ class Request{
 	 * @param array  $params
 	 * @param array  $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response
+	 * @return ResponseInterface
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch($url, array $params = [], array $curl_options = []){
