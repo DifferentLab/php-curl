@@ -13,7 +13,7 @@ namespace chillerlan\TinyCurl\Response;
 use chillerlan\TinyCurl\MultiRequest;
 
 /**
- *
+ * @property \chillerlan\TinyCurl\MultiRequest request
  */
 interface MultiResponseHandlerInterface{
 
