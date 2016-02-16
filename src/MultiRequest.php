@@ -88,6 +88,8 @@ class MultiRequest{
 
 	/**
 	 * closes the curl_multi instance
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function __destruct(){
 		if($this->curl_multi){
