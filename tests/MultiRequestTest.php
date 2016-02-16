@@ -37,15 +37,15 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 	public function testInstance(){
 		$options = new MultiRequestOptions;
+		$options->handler     = MultiResponseHandlerTest::class;
 		$options->ca_info     = __DIR__.'/test-cacert.pem';
 		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
 		$options->window_size = 3;
 
-		$handler = new MultiResponseHandlerTest;
-		$request = new MultiRequest($handler, $options);
+		$request = new MultiRequest($options);
 		$request->fetch($this->getURLs());
 
-		foreach($handler->getResponseData() as $response){
+		foreach($request->getResponseData() as $response){
 
 			$this->assertEquals(0, $response->errorcode);
 			$this->assertEquals(200, $response->statuscode);
@@ -56,18 +56,14 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 	}
 
-	public function testInstanceWithoutOptionsCoverage(){
-		$this->assertInstanceOf(MultiRequest::class, new MultiRequest(new MultiResponseHandlerTest)); // HA HA.
-	}
-
 	public function testInstanceWindowSize(){
 		$options = new MultiRequestOptions;
+		$options->handler     = MultiResponseHandlerTest::class;
 		$options->ca_info     = __DIR__.'/test-cacert.pem';
 		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
 		$options->window_size = 30;
 
-		$handler = new MultiResponseHandlerTest;
-		$request = new MultiRequest($handler, $options);
+		$request = new MultiRequest($options);
 		$request->fetch($this->getURLs());
 	}
 

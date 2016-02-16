@@ -12,6 +12,7 @@
 
 namespace chillerlan\TinyCurlTest;
 
+use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiResponseHandlerInterface;
 use chillerlan\TinyCurl\ResponseInterface;
 use stdClass;
@@ -21,12 +22,19 @@ use stdClass;
  */
 class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 
-	protected $data = [];
+	/**
+	 * @var \chillerlan\TinyCurl\MultiRequest
+	 */
+	protected $request;
+
+	public function __construct(MultiRequest &$request){
+		$this->request = $request;
+	}
 
 	/**
 	 * @param \chillerlan\TinyCurl\ResponseInterface $response
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public function handleResponse(ResponseInterface $response){
 		$data = new stdClass;
@@ -39,11 +47,8 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 
 		sort($data->ids);
 
-		$this->data[] = $data;
+		return $data;
 	}
 
-	public function getResponseData(){
-		return $this->data;
-	}
 
 }

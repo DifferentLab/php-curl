@@ -16,6 +16,8 @@ namespace chillerlan\TinyCurl;
  */
 class MultiRequestOptions extends RequestOptions{
 
+	public $handler = null;
+
 	/**
 	 * the base URL for each request, useful if you're hammering the same host all the time
 	 *

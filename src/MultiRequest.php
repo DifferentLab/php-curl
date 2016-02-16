@@ -38,6 +38,18 @@ class MultiRequest{
 	protected $urls = [];
 
 	/**
+	 * The returned value from MultiResponseHandlerInterface::handleResponse() for each request
+	 *
+	 * @var array
+	 */
+	protected $responses = [];
+
+	/**
+	 * @var array
+	 */
+	protected $failed_requests = [];
+
+	/**
 	 * concurrent request counter
 	 *
 	 * @var int
@@ -57,17 +69,12 @@ class MultiRequest{
 	/**
 	 * MultiRequest constructor.
 	 *
-	 * @param MultiResponseHandlerInterface            $handler
 	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 */
-	public function __construct(MultiResponseHandlerInterface $handler, MultiRequestOptions $options = null){
+	public function __construct(MultiRequestOptions $options){
 
-		if(!$options){
-			$options = new MultiRequestOptions;
-		}
-
-		$this->multiResponseHandler = $handler;
 		$this->options = $options;
+		$this->multiResponseHandler = new $options->handler($this);
 
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
 		$this->curl_options = $this->options->curl_options + [
@@ -96,6 +103,13 @@ class MultiRequest{
 		$this->request_count = count($this->urls);
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getResponseData(){
+		return $this->responses;
 	}
 
 	/**
@@ -130,7 +144,8 @@ class MultiRequest{
 
 			while($state = curl_multi_info_read($this->curl_multi)){
 				// welcome to callback hell.
-				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
+				$response = new MultiResponse($state['handle']);
+				$this->responses[] = $this->multiResponseHandler->handleResponse($response);
 
 				if($i < $this->request_count && isset($this->urls[$i])){
 					$this->create_handle($i);
