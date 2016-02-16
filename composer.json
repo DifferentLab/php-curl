@@ -28,5 +28,11 @@
 		"psr-4": {
 			"chillerlan\\TinyCurl\\": "src/"
 		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"chillerlan\\TinyCurlTest\\": "tests/",
+			"Example\\": "examples/"
+		}
 	}
 }
