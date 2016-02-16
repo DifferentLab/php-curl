@@ -11,7 +11,6 @@
 
 namespace chillerlan\TinyCurl;
 use chillerlan\TinyCurl\Response\MultiResponse;
-use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
 
 /**
  * Class MultiRequest
@@ -64,7 +63,7 @@ class MultiRequest{
 	protected $options;
 
 	/**
-	 * @var MultiResponseHandlerInterface
+	 * @var \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface
 	 */
 	protected $multiResponseHandler;
 
@@ -110,6 +109,14 @@ class MultiRequest{
 	}
 
 	/**
+	 * @param mixed $response
+	 * @see \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface
+	 */
+	public function addResponse($response){
+		$this->responses[] = $response;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getResponseData(){
@@ -148,8 +155,7 @@ class MultiRequest{
 
 			while($state = curl_multi_info_read($this->curl_multi)){
 				// welcome to callback hell.
-				$response = new MultiResponse($state['handle']);
-				$this->responses[] = $this->multiResponseHandler->handleResponse($response);
+				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
 				if($i < $this->request_count && isset($this->urls[$i])){
 					$this->create_handle($i);

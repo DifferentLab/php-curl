@@ -27,7 +27,7 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 	 */
 	protected $request;
 
-	public function __construct(MultiRequest &$request){
+	public function __construct(MultiRequest $request){
 		$this->request = $request;
 	}
 
@@ -47,8 +47,7 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 
 		sort($data->ids);
 
-		return $data;
+		$this->request->addResponse($data);
 	}
-
 
 }
