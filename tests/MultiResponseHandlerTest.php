@@ -26,7 +26,11 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 	 * @return void
 	 */
 	public function handleResponse(ResponseInterface $response){
-		var_dump($response->headers);
+		var_dump([
+			'http' =>$response->headers->statuscode,
+			'content-length' => $response->headers->{'content-length'},
+			'content-language' => $response->headers->{'content-language'},
+		]);
 	}
 
 }

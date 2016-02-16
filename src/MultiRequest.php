@@ -125,7 +125,7 @@ class MultiRequest{
 		do{
 
 			if(curl_multi_exec($this->curl_multi, $active) !== CURLM_OK){
-				break;
+				break; // @codeCoverageIgnore
 			}
 
 			while($state = curl_multi_info_read($this->curl_multi)){

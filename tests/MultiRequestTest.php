@@ -32,11 +32,15 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 		];
 
 		$options = new MultiRequestOptions;
-		$options->ca_info = __DIR__.'/test-cacert.pem';
-		$options->base_url = 'https://api.guildwars2.com/v2/items?';
+		$options->ca_info     = __DIR__.'/test-cacert.pem';
+		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
+		$options->window_size = 3;
 
 		(new MultiRequest(new MultiResponseHandlerTest, $options))->fetch($urls);
 	}
 
+	public function testInstanceWithoutOptionsCoverage(){
+		$this->assertInstanceOf(MultiRequest::class, new MultiRequest(new MultiResponseHandlerTest)); // HA HA.
+	}
 
 }

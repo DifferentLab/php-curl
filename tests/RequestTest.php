@@ -54,6 +54,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->requestNoCA = new Request($o2);
 	}
 
+	public function testInstanceWithoutArgsCoverage(){
+		$this->assertInstanceOf(Request::class, new Request); // HA HA.
+	}
+
 	public function fetchDataProvider(){
 		return [
 			['https://api.guildwars2.com/v2/account', []],
