@@ -14,11 +14,14 @@ namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\MultiResponseHandlerInterface;
 use chillerlan\TinyCurl\ResponseInterface;
+use stdClass;
 
 /**
  *
  */
 class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
+
+	protected $data = [];
 
 	/**
 	 * @param \chillerlan\TinyCurl\ResponseInterface $response
@@ -26,11 +29,21 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 	 * @return void
 	 */
 	public function handleResponse(ResponseInterface $response){
-		var_dump([
-			'http' =>$response->headers->statuscode,
-			'content-length' => $response->headers->{'content-length'},
-			'content-language' => $response->headers->{'content-language'},
-		]);
+		$data = new stdClass;
+		$data->errorcode             = $response->error->code;
+		$data->statuscode            = $response->info->http_code;
+		$data->content_length_header = $response->headers->{'content-length'};
+		$data->content_length_body   = $response->body->length;
+		$data->content_type          = $response->body->content_type;
+		$data->ids                   = array_column($response->json, 'id');
+
+		sort($data->ids);
+
+		$this->data[] = $data;
+	}
+
+	public function getResponseData(){
+		return $this->data;
 	}
 
 }
