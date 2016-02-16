@@ -16,7 +16,7 @@
         </whitelist>
     </filter>
     <testsuites>
-        <testsuite name="bbcode test suite">
+        <testsuite name="php-curl test suite">
 			<directory suffix=".php">./tests</directory>
 		</testsuite>
     </testsuites>
