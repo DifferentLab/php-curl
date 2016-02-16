@@ -13,77 +13,89 @@ namespace chillerlan\TinyCurl;
 
 /**
  * Class MultiRequest
+ *
+ * @link http://www.onlineaspect.com/2009/01/26/how-to-use-curl_multi-without-blocking/
  */
 class MultiRequest{
 
 	/**
-	 * the base URL for each request, useful if you're hammering the same host all the time
-	 * @var string
+	 * the curl_multi master handle
+	 *
+	 * @var resource
 	 */
-	protected $base_url = '';
+	protected $curl_multi;
+
+	/**
+	 * @var array
+	 */
+	protected $curl_options = [];
 
 	/**
 	 * the request URLs - make sure to specify the full URL if you don't use $base_url
+	 *
 	 * @var array
 	 */
 	protected $urls = [];
 
 	/**
-	 * maximum of concurrent requests
-	 * @var int
-	 */
-	protected $window_size = 5;
-
-	/**
-	 * options for each curl instance - make sure to append CURLOPT_RETURNTRANSFER = true if you specify your own
-	 * @var array
-	 */
-	protected $curl_options = [
-		CURLOPT_RETURNTRANSFER => true,
-	];
-
-	/**
-	 * wtb timeout
-	 * @var int
-	 */
-	protected $timeout = 10;
-
-	/**
-	 * callback function to process the incoming data
-	 * @var callable
-	 */
-	protected $callback;
-
-	/**
-	 * the curl_multi master handle
-	 * @var resource
-	 */
-	protected $handle;
-
-	/**
 	 * concurrent request counter
+	 *
 	 * @var int
 	 */
 	protected $request_count = 0;
 
+	/**
+	 * @var \chillerlan\TinyCurl\MultiRequestOptions
+	 */
+	protected $options;
 
 	/**
-	 * initializes the curl_multi and sets some needed variables
-	 *
-	 * @param callable $callback
-	 *
-	 * array $urls,
+	 * @var MultiResponseHandlerInterface
 	 */
-	public function __construct(){
-		$this->handle = curl_multi_init();
-#		$this->callback = $callback;
+	protected $multiResponseHandler;
+
+	/**
+	 * MultiRequest constructor.
+	 *
+	 * @param MultiResponseHandlerInterface            $handler
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
+	 */
+	public function __construct(MultiResponseHandlerInterface $handler, MultiRequestOptions $options = null){
+
+		if(!$options){
+			$options = new MultiRequestOptions;
+		}
+
+		$this->multiResponseHandler = $handler;
+		$this->options = $options;
+
+		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
+		$this->curl_options = $this->options->curl_options + [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
+			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
+			CURLOPT_CAINFO         => $ca_info,
+			CURLOPT_HEADER         => true,
+		];
 	}
 
 	/**
-	 * closes the curl instance
+	 * closes the curl_multi instance
 	 */
 	public function __destruct(){
-		curl_multi_close($this->handle);
+		if($this->curl_multi){
+			curl_multi_close($this->curl_multi);
+		}
+	}
+
+	/**
+	 * @param array $urls
+	 */
+	public function fetch(array $urls){
+		$this->urls = $urls;
+		$this->request_count = count($this->urls);
+		$this->curl_multi = curl_multi_init();
+		$this->getResponse();
 	}
 
 	/**
@@ -92,47 +104,49 @@ class MultiRequest{
 	 * @param $index
 	 */
 	protected function create_handle($index){
-		$ch = curl_init($this->base_url.$this->urls[$index]);
-		curl_setopt_array($ch, $this->curl_options);
-		curl_multi_add_handle($this->handle, $ch);
+		$curl = curl_init($this->options->base_url.$this->urls[$index]);
+		curl_setopt_array($curl, $this->curl_options);
+		curl_multi_add_handle($this->curl_multi, $curl);
 	}
 
 	/**
 	 * processes the requests
 	 */
-	public function process(){
-		if($this->request_count < $this->window_size){
-			$this->window_size = $this->request_count;
+	protected function getResponse(){
+
+		if($this->request_count < $this->options->window_size){
+			$this->options->window_size = $this->request_count;
 		}
 
-		for($i = 0; $i < $this->window_size; $i++){
+		for($i = 0; $i < $this->options->window_size; $i++){
 			$this->create_handle($i);
 		}
 
 		do{
-			if(curl_multi_exec($this->handle, $active) !== CURLM_OK){
+
+			if(curl_multi_exec($this->curl_multi, $active) !== CURLM_OK){
 				break;
 			}
-			while($state = curl_multi_info_read($this->handle)){
+
+			while($state = curl_multi_info_read($this->curl_multi)){
+				// welcome to callback hell.
+				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
+
 				if($i < $this->request_count && isset($this->urls[$i])){
 					$this->create_handle($i);
 					$i++;
 				}
-				$this->getResponse($state['handle']);
+
+				curl_multi_remove_handle($this->curl_multi, $state['handle']);
 			}
+
 			if($active){
-				curl_multi_select($this->handle, $this->timeout);
+				curl_multi_select($this->curl_multi, $this->options->timeout);
 			}
+
 		}
 		while($active);
-	}
 
-	/**
-	 * @param $curl
-	 */
-	protected function getResponse($curl){
-		call_user_func($this->callback, curl_multi_getcontent($curl), curl_getinfo($curl));
-		curl_multi_remove_handle($this->handle, $curl);
 	}
 
 }

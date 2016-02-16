@@ -15,20 +15,23 @@ namespace chillerlan\TinyCurl;
 /**
  *
  */
-class MultiResponse extends ResponseBase implements ResponseInterface{
+class MultiResponse extends Response implements ResponseInterface{
 
 	/**
-	 * MultiResponse constructor.
-	 *
-	 * @param resource $curl
-	 * @param          $data
+	 * Fills self::$response_body and calls self::getInfo()
 	 */
-	public function __construct($curl, $data){
-		parent::__construct($curl);
-
-		$this->response_body = curl_exec($data);
+	protected function exec(){
+		$response = explode("\r\n\r\n", curl_multi_getcontent($this->curl), 2);
+		$headers = isset($response[0]) ? explode("\r\n", $response[0]) : null;
+		$this->response_body = isset($response[1]) ? $response[1] : null;
 		$this->getInfo();
-		curl_close($this->curl);
+
+		if(is_array($headers)){
+			foreach($headers as $line){
+				$this->headerLine(null, $line);
+			}
+		}
+
 	}
 
 }

@@ -18,61 +18,65 @@ namespace chillerlan\TinyCurl;
 class Request{
 
 	/**
-	 * @var string
+	 * The cURL connection
+	 *
+	 * @var resource
 	 */
-	protected $ca_info;
+	protected $curl;
 
 	/**
-	 * @todo whitelist instead or too?
-	 * @var array
+	 * @var \chillerlan\TinyCurl\RequestOptions
 	 */
-	protected $hostBlacklist = [];
+	protected $options;
 
 	/**
 	 * Request constructor.
 	 *
-	 * @param string $ca_info
+	 * @param \chillerlan\TinyCurl\RequestOptions $options
 	 */
-	public function __construct($ca_info = null){
-		$this->ca_info = $ca_info;
+	public function __construct(RequestOptions $options = null){
+
+		if(!$options){
+			$options = new RequestOptions;
+		}
+
+		$this->options = $options;
 	}
 
 	/**
 	 * @param string $url
-	 * @param array  $curl_options
 	 *
 	 * @return ResponseInterface
 	 */
-	protected function getResponse($url, array $curl_options){
-		$curl = curl_init($url);
-		$ca_info = is_file($this->ca_info) ? $this->ca_info : null;
+	protected function getResponse($url){
+		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
 
-		curl_setopt_array($curl, $curl_options + [
+		curl_setopt_array($this->curl, $this->options->curl_options + [
+			CURLOPT_URL            => $url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
 			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
 			CURLOPT_CAINFO         => $ca_info,
 		]);
 
-		return new Response($curl);
+		return new Response($this->curl);
 	}
 
 	/**
 	 * @param string $url
 	 * @param array  $params
-	 * @param array  $curl_options
 	 *
 	 * @return ResponseInterface
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	public function fetch($url, array $params = [], array $curl_options = []){
+	public function fetch($url, array $params = []){
+		$this->curl = curl_init();
 		$parsedURL = parse_url($url);
 
 		if(
 			   !isset($parsedURL['scheme'])
 			|| !isset($parsedURL['host'])
 			|| !in_array($parsedURL['scheme'], ['http', 'https', 'ftp'], true)
-			|| (!empty($this->hostBlacklist) && in_array($parsedURL['host'], $this->hostBlacklist, true))
 		){
 			throw new RequestException('$url');
 		}
@@ -93,7 +97,7 @@ class Request{
 			$request_url .= '?'.http_build_query($params);
 		}
 
-		return $this->getResponse($request_url, $curl_options);
+		return $this->getResponse($request_url);
 	}
 
 	/**
@@ -118,7 +122,13 @@ class Request{
 	 * @link http://www.internoetics.com/2012/11/12/resolve-short-urls-to-their-destination-url-php-api/
 	 */
 	protected function extract($url){
-		$response = $this->getResponse($url, [CURLOPT_FOLLOWLOCATION => false]);
+		$this->curl = curl_init();
+
+		curl_setopt_array($this->curl, [
+			CURLOPT_FOLLOWLOCATION => false
+		]);
+
+		$response = $this->getResponse($url);
 
 		$info    = $response->info;
 		$headers = $response->headers;
