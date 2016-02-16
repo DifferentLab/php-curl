@@ -8,7 +8,7 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl;
+namespace chillerlan\TinyCurl\Response;
 
 /**
  * @property mixed body
@@ -23,7 +23,7 @@ interface ResponseInterface{
 	 * @param string $property
 	 *
 	 * @return mixed
-	 * @throws \chillerlan\TinyCurl\ResponseException
+	 * @throws \chillerlan\TinyCurl\Response\ResponseException
 	 */
 	public function __get($property);
 

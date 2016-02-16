@@ -12,6 +12,9 @@
 
 namespace chillerlan\TinyCurl;
 
+use chillerlan\TinyCurl\Response\Response;
+use chillerlan\TinyCurl\Response\ResponseInterface;
+
 /**
  *
  */

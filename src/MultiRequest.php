@@ -10,6 +10,8 @@
  */
 
 namespace chillerlan\TinyCurl;
+use chillerlan\TinyCurl\Response\MultiResponse;
+use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
 
 /**
  * Class MultiRequest

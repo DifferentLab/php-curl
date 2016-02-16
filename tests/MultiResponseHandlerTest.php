@@ -13,8 +13,8 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\MultiRequest;
-use chillerlan\TinyCurl\MultiResponseHandlerInterface;
-use chillerlan\TinyCurl\ResponseInterface;
+use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
+use chillerlan\TinyCurl\Response\ResponseInterface;
 use stdClass;
 
 /**
@@ -32,7 +32,7 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\ResponseInterface $response
+	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
 	 *
 	 * @return mixed
 	 */

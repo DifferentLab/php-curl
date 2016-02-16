@@ -13,7 +13,6 @@ namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiRequestOptions;
-use chillerlan\TinyCurl\ResponseInterface;
 
 class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 

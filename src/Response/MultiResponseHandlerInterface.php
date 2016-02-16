@@ -8,7 +8,9 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl;
+namespace chillerlan\TinyCurl\Response;
+
+use chillerlan\TinyCurl\MultiRequest;
 
 /**
  *
@@ -16,7 +18,14 @@ namespace chillerlan\TinyCurl;
 interface MultiResponseHandlerInterface{
 
 	/**
-	 * @param \chillerlan\TinyCurl\ResponseInterface $response
+	 * MultiResponseHandlerTest constructor.
+	 *
+	 * @param \chillerlan\TinyCurl\MultiRequest $request
+	 */
+	public function __construct(MultiRequest &$request);
+
+	/**
+	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
 	 *
 	 * @return mixed
 	 */

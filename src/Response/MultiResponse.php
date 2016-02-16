@@ -10,7 +10,7 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl;
+namespace chillerlan\TinyCurl\Response;
 
 /**
  *

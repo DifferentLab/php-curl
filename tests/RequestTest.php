@@ -13,8 +13,8 @@ namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\Request;
 use chillerlan\TinyCurl\RequestOptions;
-use chillerlan\TinyCurl\Response;
-use chillerlan\TinyCurl\ResponseInterface;
+use chillerlan\TinyCurl\Response\Response;
+use chillerlan\TinyCurl\Response\ResponseInterface;
 
 class RequestTest extends \PHPUnit_Framework_TestCase{
 
@@ -34,7 +34,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	protected $requestNoCA;
 
 	/**
-	 * @var ResponseInterface
+	 * @var \chillerlan\TinyCurl\Response\ResponseInterface
 	 */
 	protected $response;
 
@@ -102,7 +102,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	}
 
 	/**
-	 * @expectedException \chillerlan\TinyCurl\ResponseException
+	 * @expectedException \chillerlan\TinyCurl\Response\ResponseException
 	 * @expectedExceptionMessage $curl
 	 */
 	public function testResponseNoCurlException(){
@@ -110,7 +110,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	}
 
 	/**
-	 * @expectedException \chillerlan\TinyCurl\ResponseException
+	 * @expectedException \chillerlan\TinyCurl\Response\ResponseException
 	 * @expectedExceptionMessage !$property: foobar
 	 */
 	public function testResponseGetMagicFieldException(){

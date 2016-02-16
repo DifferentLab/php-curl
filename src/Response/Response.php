@@ -10,7 +10,7 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl;
+namespace chillerlan\TinyCurl\Response;
 
 use stdClass;
 
@@ -48,7 +48,8 @@ class Response implements ResponseInterface{
 	 * Response constructor.
 	 *
 	 * @param resource $curl
-	 * @throws \chillerlan\TinyCurl\ResponseException
+	 *
+	 * @throws \chillerlan\TinyCurl\Response\ResponseException
 	 */
 	public function __construct($curl){
 
@@ -77,7 +78,7 @@ class Response implements ResponseInterface{
 	 * @param string $property
 	 *
 	 * @return mixed
-	 * @throws \chillerlan\TinyCurl\ResponseException
+	 * @throws \chillerlan\TinyCurl\Response\ResponseException
 	 */
 	public function __get($property){
 
