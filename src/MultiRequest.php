@@ -129,11 +129,6 @@ class MultiRequest{
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(array $urls){
-
-		if(!$this->multiResponseHandler){
-			throw new RequestException();
-		}
-
 		$this->urls = $urls;
 		$this->request_count = count($this->urls);
 		$this->curl_multi = curl_multi_init();
