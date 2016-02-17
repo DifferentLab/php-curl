@@ -13,6 +13,7 @@ namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiRequestOptions;
+use stdClass;
 
 class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
@@ -64,6 +65,28 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 		$request = new MultiRequest($options);
 		$request->fetch($this->getURLs());
+	}
+
+	/**
+	 * @expectedException \chillerlan\TinyCurl\RequestException
+	 * @expectedExceptionMessage !$this->options->handler
+	 */
+	public function testSetHandlerExistsException(){
+		$options = new MultiRequestOptions;
+		$options->handler     = 'foobar';
+
+		new MultiRequest($options);
+	}
+
+	/**
+	 * @expectedException \chillerlan\TinyCurl\RequestException
+	 * @expectedExceptionMessage !is_a($handler)
+	 */
+	public function testSetHandlerImplementsException(){
+		$options = new MultiRequestOptions;
+		$options->handler     = stdClass::class;
+
+		new MultiRequest($options);
 	}
 
 }
