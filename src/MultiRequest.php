@@ -78,7 +78,11 @@ class MultiRequest{
 		}
 
 		$this->options = $options;
-		$this->setHandler();
+
+		if($this->options->handler){
+			$this->setHandler();
+		}
+
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
 		$this->curl_options = $this->options->curl_options + [
 			CURLOPT_RETURNTRANSFER => true,
@@ -87,6 +91,7 @@ class MultiRequest{
 			CURLOPT_CAINFO         => $ca_info,
 			CURLOPT_HEADER         => true,
 		];
+
 	}
 
 	/**
