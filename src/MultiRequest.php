@@ -71,7 +71,12 @@ class MultiRequest{
 	 *
 	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 */
-	public function __construct(MultiRequestOptions $options){
+	public function __construct(MultiRequestOptions $options = null){
+
+		if(!$options){
+			$options = new MultiRequestOptions;
+		}
+
 		$this->options = $options;
 		$this->setHandler();
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
