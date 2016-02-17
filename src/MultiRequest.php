@@ -10,7 +10,9 @@
  */
 
 namespace chillerlan\TinyCurl;
+
 use chillerlan\TinyCurl\Response\MultiResponse;
+use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
 
 /**
  * Class MultiRequest
@@ -27,6 +29,8 @@ class MultiRequest{
 	protected $curl_multi;
 
 	/**
+	 * cURL options for each handle
+	 *
 	 * @var array
 	 */
 	protected $curl_options = [];
@@ -44,11 +48,6 @@ class MultiRequest{
 	 * @var array
 	 */
 	protected $responses = [];
-
-	/**
-	 * @var array
-	 */
-	protected $failed_requests = [];
 
 	/**
 	 * concurrent request counter
@@ -73,10 +72,8 @@ class MultiRequest{
 	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 */
 	public function __construct(MultiRequestOptions $options){
-
 		$this->options = $options;
-		$this->multiResponseHandler = new $options->handler($this);
-
+		$this->setHandler();
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
 		$this->curl_options = $this->options->curl_options + [
 			CURLOPT_RETURNTRANSFER => true,
@@ -99,21 +96,62 @@ class MultiRequest{
 	}
 
 	/**
+	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface|null $handler
+	 *
+	 * @return $this
+	 * @throws \chillerlan\TinyCurl\RequestException
+	 */
+	public function setHandler(MultiResponseHandlerInterface $handler = null){
+
+		if(!$handler){
+
+			if(!class_exists($this->options->handler)){
+				throw new RequestException('!$this->options->handler');
+			}
+
+			$handler = new $this->options->handler($this);
+
+			if(!is_a($handler, MultiResponseHandlerInterface::class)){
+				throw new RequestException('!is_a($handler)');
+			}
+
+		}
+
+		$this->multiResponseHandler = $handler;
+
+		return $this;
+	}
+
+	/**
 	 * @param array $urls
+	 *
+	 * @return $this
+	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(array $urls){
+
+		if(!$this->multiResponseHandler){
+			throw new RequestException();
+		}
+
 		$this->urls = $urls;
 		$this->request_count = count($this->urls);
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
+
+		return $this;
 	}
 
 	/**
 	 * @param mixed $response
+	 *
 	 * @see \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface
+	 * @return $this
 	 */
 	public function addResponse($response){
 		$this->responses[] = $response;
+
+		return $this;
 	}
 
 	/**
