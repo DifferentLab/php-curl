@@ -92,7 +92,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
 	}
 
-
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
 	 * @expectedExceptionMessage $url

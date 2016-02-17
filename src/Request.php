@@ -136,8 +136,6 @@ class Request{
 		$info    = $response->info;
 		$headers = $response->headers;
 
-#		preg_match_all('~(http|https)://[^<>[:space:]]+[[:alnum:]#?/&=+%_]~', $response->body->content, $body_urls);
-
 		switch(true){
 			// check curl_info()
 			case in_array($info->http_code, range(300, 308), true) && isset($info->redirect_url) && !empty($info->redirect_url):
@@ -145,9 +143,6 @@ class Request{
 			// look for a location header
 			case isset($headers->location) && !empty($headers->location):
 				return $headers->location; // @codeCoverageIgnore
-			// as a fallback, grab the first url we can find in the body - greedy!
-#			case isset($body_urls[0]) && !empty($body_urls[0]):
-#				return $body_urls[0][0];
 			default: return false;
 		}
 

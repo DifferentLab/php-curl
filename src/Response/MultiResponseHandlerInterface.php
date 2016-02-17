@@ -20,7 +20,7 @@ interface MultiResponseHandlerInterface{
 	/**
 	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function handleResponse(ResponseInterface $response);
 

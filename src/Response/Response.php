@@ -162,8 +162,7 @@ class Response implements ResponseInterface{
 
 		$this->response_error->code    = curl_errno($this->curl);
 		$this->response_error->message = curl_error($this->curl);
-#		$this->response_error->version = curl_version();
-
+		$this->response_error->version = curl_version();
 	}
 
 }

@@ -161,7 +161,7 @@ class MultiRequest{
 	 *
 	 * @param $index
 	 */
-	protected function create_handle($index){
+	protected function createHandle($index){
 		$curl = curl_init($this->options->base_url.$this->urls[$index]);
 		curl_setopt_array($curl, $this->curl_options);
 		curl_multi_add_handle($this->curl_multi, $curl);
@@ -177,7 +177,7 @@ class MultiRequest{
 		}
 
 		for($i = 0; $i < $this->options->window_size; $i++){
-			$this->create_handle($i);
+			$this->createHandle($i);
 		}
 
 		do{
@@ -191,7 +191,7 @@ class MultiRequest{
 				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
 				if($i < $this->request_count && isset($this->urls[$i])){
-					$this->create_handle($i);
+					$this->createHandle($i);
 					$i++;
 				}
 
