@@ -194,8 +194,12 @@ class MultiRequest{
 
 			while($state = curl_multi_info_read($this->curl_multi)){
 				// welcome to callback hell.
-				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
-
+				$url = $this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
+				
+				if($url){
+					$this->urls[] = $url;
+				}
+				
 				if(!empty($this->urls)){
 					$this->createHandle();
 				}
