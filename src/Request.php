@@ -90,7 +90,6 @@ class Request{
 			$request_url .= $parsedURL['path'];
 		}
 
-		// @todo POST (more?)
 		if(isset($parsedURL['query']) && !empty($parsedURL['query'])){
 			parse_str($parsedURL['query'], $url_params);
 			$params = array_merge($url_params, $params);

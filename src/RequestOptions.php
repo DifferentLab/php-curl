@@ -24,7 +24,8 @@ class RequestOptions{
 	public $curl_options = [];
 
 	/**
-	 * @todo whitelist instead or too?
+	 * whitelist too?
+	 *
 	 * @var array
 	 */
 	public $hostBlacklist = [];

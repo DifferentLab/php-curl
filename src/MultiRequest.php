@@ -50,13 +50,6 @@ class MultiRequest{
 	protected $responses = [];
 
 	/**
-	 * concurrent request counter
-	 *
-	 * @var int
-	 */
-	protected $request_count = 0;
-
-	/**
 	 * @var \chillerlan\TinyCurl\MultiRequestOptions
 	 */
 	protected $options;
@@ -140,7 +133,6 @@ class MultiRequest{
 	 */
 	public function fetch(array $urls){
 		$this->urls = $urls;
-		$this->request_count = count($this->urls);
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
 
@@ -181,9 +173,10 @@ class MultiRequest{
 	 * processes the requests
 	 */
 	protected function getResponse(){
-
-		if($this->request_count < $this->options->window_size){
-			$this->options->window_size = $this->request_count;
+		$url_count = count($this->urls);
+		
+		if($url_count < $this->options->window_size){
+			$this->options->window_size = $url_count;
 		}
 
 		for($i = 0; $i < $this->options->window_size; $i++){
@@ -200,7 +193,7 @@ class MultiRequest{
 				// welcome to callback hell.
 				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
-				if($i < $this->request_count && isset($this->urls[$i])){
+				if($i < $url_count && isset($this->urls[$i])){
 					$this->createHandle($i);
 					$i++;
 				}
