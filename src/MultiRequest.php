@@ -197,7 +197,7 @@ class MultiRequest{
 				$url = $this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
 				if($url){
-					$this->urls[] = $url;
+					$this->urls[] = $url; // @codeCoverageIgnore
 				}
 
 				if(!empty($this->urls)){
