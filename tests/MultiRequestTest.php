@@ -69,6 +69,14 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
+	 * @expectedExceptionMessage empty($urls)
+	 */
+	public function testFetchUrlEmptyException(){
+		(new MultiRequest)->fetch([]);
+	}
+
+	/**
+	 * @expectedException \chillerlan\TinyCurl\RequestException
 	 * @expectedExceptionMessage !$this->options->handler
 	 */
 	public function testSetHandlerExistsException(){

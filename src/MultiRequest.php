@@ -132,6 +132,11 @@ class MultiRequest{
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(array $urls){
+		
+		if(empty($urls)){
+			throw new RequestException('empty($urls)');
+		}
+		
 		$this->urls = $urls;
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
@@ -160,11 +165,9 @@ class MultiRequest{
 
 	/**
 	 * creates a new handle for $request[$index]
-	 *
-	 * @param $index
 	 */
-	protected function createHandle($index){
-		$curl = curl_init($this->options->base_url.$this->urls[$index]);
+	protected function createHandle(){
+		$curl = curl_init($this->options->base_url.array_shift($this->urls));
 		curl_setopt_array($curl, $this->curl_options);
 		curl_multi_add_handle($this->curl_multi, $curl);
 	}
@@ -175,12 +178,12 @@ class MultiRequest{
 	protected function getResponse(){
 		$url_count = count($this->urls);
 		
-		if($url_count < $this->options->window_size){
+		if($this->options->window_size > $url_count){
 			$this->options->window_size = $url_count;
 		}
 
 		for($i = 0; $i < $this->options->window_size; $i++){
-			$this->createHandle($i);
+			$this->createHandle();
 		}
 
 		do{
@@ -193,9 +196,8 @@ class MultiRequest{
 				// welcome to callback hell.
 				$this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
-				if($i < $url_count && isset($this->urls[$i])){
-					$this->createHandle($i);
-					$i++;
+				if(!empty($this->urls)){
+					$this->createHandle();
 				}
 
 				curl_multi_remove_handle($this->curl_multi, $state['handle']);
