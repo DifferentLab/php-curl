@@ -132,11 +132,11 @@ class MultiRequest{
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(array $urls){
-		
+
 		if(empty($urls)){
 			throw new RequestException('empty($urls)');
 		}
-		
+
 		$this->urls = $urls;
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
@@ -177,12 +177,12 @@ class MultiRequest{
 	 */
 	protected function getResponse(){
 		$url_count = count($this->urls);
-		
+
 		if($this->options->window_size > $url_count){
 			$this->options->window_size = $url_count;
 		}
 
-		for($i = 0; $i < $this->options->window_size; $i++){
+		foreach(range(0, $this->options->window_size) as $i){
 			$this->createHandle();
 		}
 
@@ -192,14 +192,14 @@ class MultiRequest{
 				break; // @codeCoverageIgnore
 			}
 
+			// welcome to callback hell.
 			while($state = curl_multi_info_read($this->curl_multi)){
-				// welcome to callback hell.
 				$url = $this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
-				
+
 				if($url){
 					$this->urls[] = $url;
 				}
-				
+
 				if(!empty($this->urls)){
 					$this->createHandle();
 				}

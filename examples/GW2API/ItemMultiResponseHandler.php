@@ -12,6 +12,8 @@
 namespace Example\GW2API;
 
 use chillerlan\TinyCurl\MultiRequest;
+use chillerlan\TinyCurl\MultiRequestOptions;
+use chillerlan\TinyCurl\Request;
 use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
 use chillerlan\TinyCurl\Response\ResponseInterface;
 use chillerlan\Framework\Core\Traits\DatabaseTrait;
@@ -27,9 +29,17 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	use DatabaseTrait;
 
 	/**
+	 * class options
+	 * play around with chunksize and concurrent requests to get best performance results
+	 */
+	const CONCURRENT    = 5;
+	const CHUNK_SIZE    = 100;
+	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
+
+	/**
 	 * @var \chillerlan\TinyCurl\MultiRequest
 	 */
-	protected $request;
+	protected $multiRequest;
 
 	/**
 	 * @var \chillerlan\Framework\Database\Drivers\MySQLi\MySQLiDriver
@@ -42,13 +52,20 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $mysqli;
 
 	/**
+	 * @var array
+	 */
+	protected $urls = [];
+
+	/**
 	 * MultiResponseHandlerTest constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\MultiRequest $request
+	 * @param \chillerlan\TinyCurl\MultiRequest $multiRequest
 	 */
-	public function __construct(MultiRequest $request){
+	public function __construct(MultiRequest $multiRequest = null){
+		$this->multiRequest = $multiRequest;
+
 		(new Dotenv(__DIR__.'/../../config'))->load();
-		$this->request = $request;
+
 		$dbOptions = new DBOptions([
 			'host'     => getenv('DB_MYSQLI_HOST'),
 			'port'     => getenv('DB_MYSQLI_PORT'),
@@ -58,13 +75,24 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		]);
 
 		$this->mySQLiDriver = $this->dbconnect(MySQLiDriver::class, $dbOptions);
-		$this->mysqli = $this->mySQLiDriver->getConnection();
+		$this->mysqli = $this->mySQLiDriver->getDBResource();
 	}
 
 	/**
+	 * The response handler.
+	 *
+	 * This method will be called within a loop in MultiRequest::getResponse().
+	 * You can either build your class around this MultiResponseHandlerInterface to process
+	 * the response during runtime or return the response data to the running
+	 * MultiRequest instance via addResponse() and receive the data by calling getResponseData().
+	 *
+	 * You can either run this method void or return an URL as a replacement for a failed request,
+	 * which then will be re-added to the running queue.
+	 * However, the return value will not be checked, so make sure you return valid URLs. ;)
+	 *
 	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
 	 *
-	 * @return void
+	 * @return bool|string $url
 	 */
 	public function handleResponse(ResponseInterface $response){
 		$info = $response->info;
@@ -81,12 +109,46 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 
 		}
 		else{
-			$return = new stdClass;
-			$return->httpcode = $info->http_code;
-			$return->url      = $info->url;
-
-			$this->request->addResponse($info->http_code);
+			// add the failed response to retry later @todo
+			return null;
 		}
+
+		// not adding a response if everything was fine ('s ok, PhpStorm...)
+		return false;
+	}
+
+	/**
+	 *
+	 */
+	public function init(){
+		$options = new MultiRequestOptions;
+		$options->ca_info     = __DIR__.'/test-cacert.pem';
+		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
+		$options->window_size = self::CONCURRENT;
+
+		$this->getURLs();
+		$request = new MultiRequest($options);
+		// solving the hen-egg problem, feed the hen with the egg!
+		$request->setHandler($this);
+		$request->fetch($this->urls);
+	}
+
+	/**
+	 * @throws \chillerlan\TinyCurl\RequestException
+	 */
+	protected function getURLs(){
+		$response = (new Request)->fetch('https://api.guildwars2.com/v2/items');
+
+		if($response->info->http_code !== 200){
+			exit('failed to get /v2/items');
+		}
+
+		foreach(array_chunk($response->json, self::CHUNK_SIZE) as $chunk){
+			foreach(self::API_LANGUAGES as $lang){
+				$this->urls[] = http_build_query(['lang' => $lang, 'ids' => implode(',', $chunk)]);
+			}
+		}
+
 	}
 
 }
