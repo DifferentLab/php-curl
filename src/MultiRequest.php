@@ -182,7 +182,7 @@ class MultiRequest{
 			$this->options->window_size = $url_count;
 		}
 
-		foreach(range(0, $this->options->window_size) as $i){
+		foreach(range(1, $this->options->window_size) as $i){
 			$this->createHandle();
 		}
 
