@@ -19,8 +19,9 @@ use chillerlan\TinyCurl\Response\ResponseInterface;
 use chillerlan\Framework\Core\Traits\DatabaseTrait;
 use chillerlan\Framework\Database\DBOptions;
 use chillerlan\Framework\Database\Drivers\MySQLi\MySQLiDriver;
+use chillerlan\TinyCurl\URL;
 use Dotenv\Dotenv;
-use stdClass;
+use Exception;
 
 /**
  * Class ItemMultiResponseHandler
@@ -32,9 +33,11 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 * class options
 	 * play around with chunksize and concurrent requests to get best performance results
 	 */
-	const CONCURRENT    = 5;
-	const CHUNK_SIZE    = 100;
+	const CONCURRENT    = 7;
+	const CHUNK_SIZE    = 150;
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
+	const CACERT        = __DIR__.'/test-cacert.pem';
+	const TEMP_TABLE    = 'gw2_items_temp';
 
 	/**
 	 * @var \chillerlan\TinyCurl\MultiRequest
@@ -47,9 +50,9 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $mySQLiDriver;
 
 	/**
-	 * @var \mysqli
+	 * @var \mysqli_stmt
 	 */
-	protected $mysqli;
+	protected $mysqli_stmt;
 
 	/**
 	 * @var array
@@ -57,11 +60,24 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $urls = [];
 
 	/**
+	 * @var float
+	 */
+	protected $starttime;
+
+	/**
+	 * @var int
+	 */
+	protected $callback = 0;
+
+	/**
 	 * MultiResponseHandlerTest constructor.
 	 *
 	 * @param \chillerlan\TinyCurl\MultiRequest $multiRequest
 	 */
 	public function __construct(MultiRequest $multiRequest = null){
+		date_default_timezone_set('UTC');
+		mb_internal_encoding('UTF-8');
+
 		$this->multiRequest = $multiRequest;
 
 		(new Dotenv(__DIR__.'/../../config'))->load();
@@ -75,11 +91,10 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		]);
 
 		$this->mySQLiDriver = $this->dbconnect(MySQLiDriver::class, $dbOptions);
-		$this->mysqli = $this->mySQLiDriver->getDBResource();
 	}
 
 	/**
-	 * The response handler.
+	 * Schrödingers cat state handler.
 	 *
 	 * This method will be called within a loop in MultiRequest::getResponse().
 	 * You can either build your class around this MultiResponseHandlerInterface to process
@@ -96,59 +111,135 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 */
 	public function handleResponse(ResponseInterface $response){
 		$info = $response->info;
+		$this->callback++;
 
 		// get the current request params
 		parse_str(parse_url($info->url, PHP_URL_QUERY), $params);
 
+		// there be dragons.
 		if(in_array($info->http_code, [200, 206], true)){
-			// there be dragons.
+			$lang = $response->headers->{'content-language'} ?: $params['lang'];
 
-			foreach($response->json as $item){
-				echo $item->id.' - '.$item->name.PHP_EOL;
+			// discard the response when it's impossible to determine the language
+			if(!in_array($lang, self::API_LANGUAGES)){
+				return false;
 			}
 
+			$sql = 'UPDATE '.self::TEMP_TABLE.' SET `'.$lang.'` = ? WHERE `id` = ?';
+			$values = [];
+
+			foreach($response->json as $item){
+#				$this->logToCLI(str_pad($item->id, 5).' - '.$item->name);
+				// just dumping the raw JSON for each item here because i'm lazy (or to process the itemdata later)
+				$values[] = [json_encode($item), $item->id];
+			}
+
+			// insert the data as soon as we receive it
+			// this will result in a couple more database writes but won't block the responses much
+			$this->mySQLiDriver->multi($sql, $values);
+			$this->logToCLI('['.$lang.']['.str_pad($this->callback, 6).']'.md5($response->info->url).' updated');
+
+			// not adding a response if everything was fine ('s ok, PhpStorm...)
+			return false;
 		}
+		// instant retry on a 502
+		// https://gitter.im/arenanet/api-cdi?at=56c3ba6ba5bdce025f69bcc8
+		else if($info->http_code === 502){
+			return new URL($info->url);
+		}
+		// examine and add the failed response to retry later @todo
 		else{
-			// add the failed response to retry later @todo
 			return null;
 		}
 
-		// not adding a response if everything was fine ('s ok, PhpStorm...)
-		return false;
 	}
 
 	/**
+	 * Write some info to the CLI
 	 *
+	 * @param $str
+	 */
+	protected function logToCLI($str){
+		echo '['.date('c', time()).']'.sprintf('[%11s] ', sprintf('%01.5f', microtime(true) - $this->starttime)).$str.PHP_EOL;
+	}
+
+	/**
+	 * start the mayhem
 	 */
 	public function init(){
+		$this->createTempTable();
+		$this->getURLs();
+
+		$this->starttime = microtime(true);
+
 		$options = new MultiRequestOptions;
-		$options->ca_info     = __DIR__.'/test-cacert.pem';
+		$options->ca_info     = self::CACERT;
 		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
 		$options->window_size = self::CONCURRENT;
 
-		$this->getURLs();
 		$request = new MultiRequest($options);
 		// solving the hen-egg problem, feed the hen with the egg!
 		$request->setHandler($this);
+
+		$this->logToCLI('mayhem started');
+		$this->callback = 0;
 		$request->fetch($this->urls);
+		$this->logToCLI('MultiRequest::fetch() finished');
+
+#		var_dump($this->mySQLiDriver->raw('select * from '.self::TEMP_TABLE));
+	}
+
+	/**
+	 * Creates a temporary table to receive the item responses on the fly
+	 */
+	protected function createTempTable(){
+		$this->starttime = microtime(true);
+		$this->logToCLI('self::createTempTable() started');
+
+		$sql_lang = array_map(function($lang){
+			return '`'.$lang.'` text COLLATE utf8mb4_bin NOT NULL';
+		}, self::API_LANGUAGES);
+
+		$sql = 'CREATE TEMPORARY TABLE `'.self::TEMP_TABLE.'` ('
+		       .'`id` int(10) unsigned NOT NULL,'
+		       .implode(', ', $sql_lang)
+		       .'`updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
+		       .'`response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
+		       .'PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
+
+		$this->mySQLiDriver->raw('DROP TEMPORARY TABLE `'.self::TEMP_TABLE.'`');
+		$this->mySQLiDriver->raw($sql);
+		$this->logToCLI('self::createTempTable() finished');
 	}
 
 	/**
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	protected function getURLs(){
+		$this->starttime = microtime(true);
+		$this->logToCLI('self::getURLs() fetch');
 		$response = (new Request)->fetch('https://api.guildwars2.com/v2/items');
 
 		if($response->info->http_code !== 200){
-			exit('failed to get /v2/items');
+			throw new Exception('failed to get /v2/items');
 		}
 
-		foreach(array_chunk($response->json, self::CHUNK_SIZE) as $chunk){
+		$values = array_map(function($item){
+			return [$item];
+		}, $response->json);
+
+		$this->logToCLI('self::getURLs() $response to DB start');
+		$this->mySQLiDriver->multi('INSERT INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)', $values);
+		$this->logToCLI('self::getURLs() $response to DB finish');
+
+		$chunks = array_chunk($response->json, self::CHUNK_SIZE);
+		foreach($chunks as $chunk){
 			foreach(self::API_LANGUAGES as $lang){
-				$this->urls[] = http_build_query(['lang' => $lang, 'ids' => implode(',', $chunk)]);
+				$this->urls[] = 'lang='.$lang.'&ids='.implode(',', $chunk); // not using http_build_query here on purpose
 			}
 		}
 
+		$this->logToCLI('self::getURLs() finished');
 	}
 
 }

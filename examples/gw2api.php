@@ -15,6 +15,10 @@ use Example\GW2API\ItemMultiResponseHandler;
 require_once '../vendor/autoload.php';
 require_once 'functions.php';
 
+if(!is_cli()){
+	throw new \Exception('no way, buddy.');
+}
+
 $gw2items = new ItemMultiResponseHandler;
 $gw2items->init();
 
