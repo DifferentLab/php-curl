@@ -31,7 +31,7 @@ interface MultiResponseHandlerInterface{
 	 *
 	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
 	 *
-	 * @return void|string $url
+	 * @return void|bool|\chillerlan\TinyCurl\URL
 	 */
 	public function handleResponse(ResponseInterface $response);
 

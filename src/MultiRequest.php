@@ -137,7 +137,10 @@ class MultiRequest{
 			throw new RequestException('empty($urls)');
 		}
 
-		$this->urls = $urls;
+		foreach($urls as $url){
+			$this->urls[] = new URL($this->options->base_url.$url);
+		}
+
 		$this->curl_multi = curl_multi_init();
 		$this->getResponse();
 
@@ -167,7 +170,8 @@ class MultiRequest{
 	 * creates a new handle for $request[$index]
 	 */
 	protected function createHandle(){
-		$curl = curl_init($this->options->base_url.array_shift($this->urls));
+		$url  = array_shift($this->urls);
+		$curl = curl_init($url->url);
 		curl_setopt_array($curl, $this->curl_options);
 		curl_multi_add_handle($this->curl_multi, $curl);
 	}
@@ -196,7 +200,7 @@ class MultiRequest{
 			while($state = curl_multi_info_read($this->curl_multi)){
 				$url = $this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
-				if($url){
+				if($url instanceof URL){
 					$this->urls[] = $url; // @codeCoverageIgnore
 				}
 
