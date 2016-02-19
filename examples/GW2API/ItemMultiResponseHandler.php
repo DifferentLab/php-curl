@@ -19,6 +19,7 @@ use chillerlan\TinyCurl\Response\ResponseInterface;
 use chillerlan\Framework\Core\Traits\DatabaseTrait;
 use chillerlan\Framework\Database\DBOptions;
 use chillerlan\Framework\Database\Drivers\MySQLi\MySQLiDriver;
+use chillerlan\Framework\Database\Drivers\PDO\PDOMySQLDriver;
 use chillerlan\TinyCurl\URL;
 use Dotenv\Dotenv;
 use Exception;
@@ -38,6 +39,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
 	const CACERT        = __DIR__.'/test-cacert.pem';
 	const TEMP_TABLE    = 'gw2_items_temp';
+	const DBDRIVER      = MySQLiDriver::class; // PDOMySQLDriver::class might need a fix first
 
 	/**
 	 * @var \chillerlan\TinyCurl\MultiRequest
@@ -45,14 +47,9 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $multiRequest;
 
 	/**
-	 * @var \chillerlan\Framework\Database\Drivers\MySQLi\MySQLiDriver
+	 * @var \chillerlan\Framework\Database\Drivers\DBDriverInterface
 	 */
-	protected $mySQLiDriver;
-
-	/**
-	 * @var \mysqli_stmt
-	 */
-	protected $mysqli_stmt;
+	protected $DBDriverInterface;
 
 	/**
 	 * @var array
@@ -90,7 +87,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			'password' => getenv('DB_MYSQLI_PASSWORD'),
 		]);
 
-		$this->mySQLiDriver = $this->dbconnect(MySQLiDriver::class, $dbOptions);
+		$this->DBDriverInterface = $this->dbconnect(self::DBDRIVER, $dbOptions);
 	}
 
 	/**
@@ -136,8 +133,14 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 
 			// insert the data as soon as we receive it
 			// this will result in a couple more database writes but won't block the responses much
-			$this->mySQLiDriver->multi($sql, $values);
-			$this->logToCLI('['.$lang.']['.str_pad($this->callback, 6).']'.md5($response->info->url).' updated');
+			if($this->DBDriverInterface->multi($sql, $values)){
+				$this->logToCLI('['.str_pad($this->callback, 6, ' ',STR_PAD_RIGHT).']['.$lang.'] '.md5($response->info->url).' updated');
+			}
+			else{
+				// retry if the insert failed for whatever reason
+				$this->logToCLI('['.str_pad($this->callback, 6, ' ',STR_PAD_RIGHT).']['.$lang.'] '.md5($response->info->url).' failed, retrying');
+				return new URL($info->url);
+			}
 
 			// not adding a response if everything was fine ('s ok, PhpStorm...)
 			return false;
@@ -200,15 +203,15 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			return '`'.$lang.'` text COLLATE utf8mb4_bin NOT NULL';
 		}, self::API_LANGUAGES);
 
-		$sql = 'CREATE TEMPORARY TABLE `'.self::TEMP_TABLE.'` ('
+		$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
 		       .'`id` int(10) unsigned NOT NULL,'
 		       .implode(', ', $sql_lang)
-		       .'`updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
+		       .'`updated` tinyint(1) unsigned NOT NULL DEFAULT \'0\','
 		       .'`response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
 		       .'PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
 
-		$this->mySQLiDriver->raw('DROP TEMPORARY TABLE `'.self::TEMP_TABLE.'`');
-		$this->mySQLiDriver->raw($sql);
+		$this->DBDriverInterface->raw('DROP TEMPORARY TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
+		$this->DBDriverInterface->raw($sql);
 		$this->logToCLI('self::createTempTable() finished');
 	}
 
@@ -229,7 +232,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		}, $response->json);
 
 		$this->logToCLI('self::getURLs() $response to DB start');
-		$this->mySQLiDriver->multi('INSERT INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)', $values);
+		$this->DBDriverInterface->multi('INSERT INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)', $values);
 		$this->logToCLI('self::getURLs() $response to DB finish');
 
 		$chunks = array_chunk($response->json, self::CHUNK_SIZE);
