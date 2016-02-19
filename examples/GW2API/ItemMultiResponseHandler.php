@@ -34,12 +34,12 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 * class options
 	 * play around with chunksize and concurrent requests to get best performance results
 	 */
-	const CONCURRENT    = 7;
-	const CHUNK_SIZE    = 150;
+	const CONCURRENT    = 10;
+	const CHUNK_SIZE    = 200;
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
 	const CACERT        = __DIR__.'/test-cacert.pem';
 	const TEMP_TABLE    = 'gw2_items_temp';
-	const DBDRIVER      = MySQLiDriver::class; // PDOMySQLDriver::class might need a fix first
+	const DBDRIVER      = PDOMySQLDriver::class; // MySQLiDriver::class
 
 	/**
 	 * @var \chillerlan\TinyCurl\MultiRequest
@@ -206,7 +206,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
 		       .'`id` int(10) unsigned NOT NULL,'
 		       .implode(', ', $sql_lang)
-		       .'`updated` tinyint(1) unsigned NOT NULL DEFAULT \'0\','
+		       .', `updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
 		       .'`response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
 		       .'PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
 
