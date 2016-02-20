@@ -13,20 +13,83 @@ namespace chillerlan\TinyCurl;
 
 /**
  * Class URL
+ *
+ * @property string url
+ * @property string method
+ * @property string scheme
+ * @property string host
+ * @property string port
+ * @property string path
+ * @property string query
+ * @property string fragment
+ * @property array  params
+ * @property array  parsedquery
+ * @property array  merged_params
  */
 class URL{
 
+	/**
+	 * @var string
+	 */
 	protected $url;
 
-	protected $host;
-	protected $path;
-	protected $scheme;
-	protected $query;
-
-	protected $params;
+	/**
+	 * @var string
+	 */
 	protected $method;
 
+	/**
+	 * @var string
+	 */
+	protected $scheme;
 
+	/**
+	 * @var string
+	 */
+	protected $host;
+
+	/**
+	 * @var int
+	 */
+	protected $port;
+
+	/**
+	 * @var string
+	 */
+	protected $path;
+
+	/**
+	 * @var string
+	 */
+	protected $query;
+
+	/**
+	 * @var string
+	 */
+	protected $fragment;
+
+	/**
+	 * @var array
+	 */
+	protected $parsedquery = [];
+
+	/**
+	 * @var array
+	 */
+	protected $params = [];
+
+	/**
+	 * @var array
+	 */
+	protected $merged_params = [];
+
+	/**
+	 * URL constructor.
+	 *
+	 * @param string $url
+	 * @param array  $params
+	 * @param string $method
+	 */
 	public function __construct($url, array $params = [], $method = 'GET'){
 		$this->url    = $url;
 		$this->params = $params;
@@ -37,23 +100,86 @@ class URL{
 
 		$url = parse_url($url);
 		$this->host      = !isset($url['host'])      ? null : $url['host'];
+		$this->port      = !isset($url['port'])      ? null : $url['port'];
 		$this->path      = !isset($url['path'])      ? null : $url['path'];
 		$this->scheme    = !isset($url['scheme'])    ? null : $url['scheme'];
 		$this->query     = !isset($url['query'])     ? null : $url['query'];
 		$this->fragment  = !isset($url['fragment'])  ? null : $url['fragment'];
+
+		if($this->query){
+			parse_str($this->query, $this->parsedquery);
+			$this->merged_params = array_merge($this->parsedquery, $this->params);
+		}
+
 	}
 
-	public function __toString(){
-		return $this->url;
-	}
-	
-	/*
+	/**
+	 * @param $name
+	 *
+	 * @return mixed
+	 */
 	public function __get($name){
 		return $this->{$name};
 	}
 
-	public function __set($name, $value){
-		// TODO: Implement __set() method.
+	/**
+	 * @return string
+	 */
+	public function __toString(){
+		return $this->url;
 	}
-	*/
+
+	/**
+	 * @return string
+	 */
+	public function overrideParams(){
+		$url = $this->getURL();
+
+		if($this->params){
+			$url .= '?'.http_build_query($this->params);
+		}
+
+		return $url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function mergeParams(){
+		$url = $this->getURL();
+
+		if($this->merged_params){
+			$url .= '?'.http_build_query($this->merged_params);
+		}
+
+		return $url;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getURL(){
+		$url = '';
+
+		if($this->scheme){
+			$url .= $this->scheme.':';
+		}
+
+		if($this->host){
+			$url .= '//'.$this->host;
+
+			if($this->port){
+				$url .= ':'.$this->port;
+			}
+
+		}
+		
+		if($this->path){
+			$url .= $this->path;
+		}
+
+
+		return $url;
+	}
+
 }
