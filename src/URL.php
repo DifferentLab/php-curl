@@ -24,7 +24,6 @@ namespace chillerlan\TinyCurl;
  * @property string fragment
  * @property array  params
  * @property array  parsedquery
- * @property array  merged_params
  */
 class URL{
 
@@ -79,11 +78,6 @@ class URL{
 	protected $params = [];
 
 	/**
-	 * @var array
-	 */
-	protected $merged_params = [];
-
-	/**
 	 * URL constructor.
 	 *
 	 * @param string $url
@@ -108,7 +102,6 @@ class URL{
 
 		if($this->query){
 			parse_str($this->query, $this->parsedquery);
-			$this->merged_params = array_merge($this->parsedquery, $this->params);
 		}
 
 	}
@@ -144,7 +137,7 @@ class URL{
 	 */
 	public function mergeParams(){
 		$url  = $this->getURL();
-		$url .= '?'.http_build_query($this->merged_params);
+		$url .= '?'.http_build_query(array_merge($this->parsedquery, $this->params));
 
 		return $url;
 	}
