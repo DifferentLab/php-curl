@@ -16,7 +16,8 @@ namespace chillerlan\TinyCurl;
  */
 class URL{
 
-	public $url;
+	protected $url;
+
 	protected $host;
 	protected $path;
 	protected $scheme;
@@ -25,11 +26,8 @@ class URL{
 	protected $params;
 	protected $method;
 
-	protected $retries;
-	protected $lasterror;
 
-	
-	public function __construct($url, array $params = [], $method = null){
+	public function __construct($url, array $params = [], $method = 'GET'){
 		$this->url    = $url;
 		$this->params = $params;
 
@@ -38,10 +36,15 @@ class URL{
 		}
 
 		$url = parse_url($url);
-		$this->host   = !isset($url['host'])   ?: $url['host'];
-		$this->path   = !isset($url['path'])   ?: $url['path'];
-		$this->scheme = !isset($url['scheme']) ?: $url['scheme'];
-		$this->query  = !isset($url['query'])  ?: $url['query'];
+		$this->host      = !isset($url['host'])      ? null : $url['host'];
+		$this->path      = !isset($url['path'])      ? null : $url['path'];
+		$this->scheme    = !isset($url['scheme'])    ? null : $url['scheme'];
+		$this->query     = !isset($url['query'])     ? null : $url['query'];
+		$this->fragment  = !isset($url['fragment'])  ? null : $url['fragment'];
+	}
+
+	public function __toString(){
+		return $this->url;
 	}
 	
 	/*
@@ -52,11 +55,5 @@ class URL{
 	public function __set($name, $value){
 		// TODO: Implement __set() method.
 	}
-
-	public function __toString(){
-		// TODO: Implement __toString() method.
-		return '';
-	}
-	
 	*/
 }

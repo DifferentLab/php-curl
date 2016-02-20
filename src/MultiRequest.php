@@ -36,11 +36,11 @@ class MultiRequest{
 	protected $curl_options = [];
 
 	/**
-	 * the request URLs - make sure to specify the full URL if you don't use $base_url
+	 * An array of the request URLs as \chillerlan\TinyCurl\URL object
 	 *
 	 * @var array
 	 */
-	protected $urls = [];
+	protected $stack = [];
 
 	/**
 	 * The returned value from MultiResponseHandlerInterface::handleResponse() for each request
@@ -99,7 +99,7 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface|null $handler
+	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface $handler
 	 *
 	 * @return $this
 	 * @throws \chillerlan\TinyCurl\RequestException
@@ -126,7 +126,7 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param array $urls
+	 * @param array $urls array of \chillerlan\TinyCurl\URL objects
 	 *
 	 * @return $this
 	 * @throws \chillerlan\TinyCurl\RequestException
@@ -137,12 +137,22 @@ class MultiRequest{
 			throw new RequestException('empty($urls)');
 		}
 
-		foreach($urls as $url){
-			$this->urls[] = new URL($this->options->base_url.$url);
+		$this->stack      = $urls;
+		$this->curl_multi = curl_multi_init();
+
+		$url_count = count($this->stack);
+
+		if($this->options->window_size > $url_count){
+			$this->options->window_size = $url_count;
 		}
 
-		$this->curl_multi = curl_multi_init();
-		$this->getResponse();
+		// shoot out the first batch of requests
+		array_map(function(){
+			$this->createHandle();
+		}, range(1, $this->options->window_size));
+
+		/// ...and start processing the stack
+		$this->processStack();
 
 		return $this;
 	}
@@ -170,25 +180,28 @@ class MultiRequest{
 	 * creates a new handle for $request[$index]
 	 */
 	protected function createHandle(){
-		$url  = array_shift($this->urls);
-		$curl = curl_init($url->url);
-		curl_setopt_array($curl, $this->curl_options);
-		curl_multi_add_handle($this->curl_multi, $curl);
+
+		if(!empty($this->stack)){
+			$url = array_shift($this->stack);
+
+			if($url instanceof URL){
+				$curl = curl_init($url);
+				curl_setopt_array($curl, $this->curl_options);
+				curl_multi_add_handle($this->curl_multi, $curl);
+			}
+			else{
+				// retry on next if we don't get what we expect
+				$this->createHandle();
+			}
+
+		}
+
 	}
 
 	/**
 	 * processes the requests
 	 */
-	protected function getResponse(){
-		$url_count = count($this->urls);
-
-		if($this->options->window_size > $url_count){
-			$this->options->window_size = $url_count;
-		}
-
-		foreach(range(1, $this->options->window_size) as $i){
-			$this->createHandle();
-		}
+	protected function processStack(){
 
 		do{
 
@@ -201,13 +214,10 @@ class MultiRequest{
 				$url = $this->multiResponseHandler->handleResponse(new MultiResponse($state['handle']));
 
 				if($url instanceof URL){
-					$this->urls[] = $url; // @codeCoverageIgnore
+					$this->stack[] = $url;
 				}
 
-				if(!empty($this->urls)){
-					$this->createHandle();
-				}
-
+				$this->createHandle();
 				curl_multi_remove_handle($this->curl_multi, $state['handle']);
 			}
 
