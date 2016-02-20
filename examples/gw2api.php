@@ -19,6 +19,9 @@ if(!is_cli()){
 	throw new \Exception('no way, buddy.');
 }
 
+date_default_timezone_set('UTC');
+mb_internal_encoding('UTF-8');
+
 $gw2items = new ItemMultiResponseHandler;
 $gw2items->init();
 
