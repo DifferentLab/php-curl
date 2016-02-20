@@ -14,7 +14,8 @@ namespace chillerlan\TinyCurlTest;
 use chillerlan\TinyCurl\Request;
 use chillerlan\TinyCurl\RequestOptions;
 use chillerlan\TinyCurl\Response\Response;
-use chillerlan\TinyCurl\Response\ResponseInterface;
+use chillerlan\TinyCurl\URL;
+use stdClass;
 
 class RequestTest extends \PHPUnit_Framework_TestCase{
 
@@ -70,7 +71,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @dataProvider fetchDataProvider
 	 */
 	public function testFetchWithCA($url, array $params){
-		$this->response = $this->requestWithCA->fetch($url, $params);
+		$this->response = $this->requestWithCA->fetch(new URL($url, $params));
 
 		$this->assertEquals(0, $this->response->error->code);
 		$this->assertEquals(200, $this->response->info->http_code);
@@ -83,7 +84,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @dataProvider fetchDataProvider
 	 */
 	public function testFetchNoCA($url, array $params){
-		$this->response = $this->requestNoCA->fetch($url, $params);
+		$this->response = $this->requestNoCA->fetch(new URL($url, $params));
 
 		$this->assertEquals(0, $this->response->error->code);
 		$this->assertEquals(200, $this->response->info->http_code);
@@ -96,8 +97,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @expectedException \chillerlan\TinyCurl\RequestException
 	 * @expectedExceptionMessage $url
 	 */
-	public function testFetchUrlException(){
-		$this->requestWithCA->fetch('');
+	public function testFetchUrlSchemeException(){
+		$this->requestWithCA->fetch(new URL('htps://whatever.wat'));
 	}
 
 	/**
@@ -113,7 +114,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @expectedExceptionMessage !$property: foobar
 	 */
 	public function testResponseGetMagicFieldException(){
-		var_dump($this->requestWithCA->fetch('https://api.guildwars2.com/v2/build')->foobar);
+		var_dump($this->requestWithCA->fetch(new URL('https://api.guildwars2.com/v2/build'))->foobar);
 	}
 
 }

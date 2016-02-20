@@ -66,40 +66,19 @@ class Request{
 	}
 
 	/**
-	 * @param string $url
-	 * @param array  $params
+	 * @param \chillerlan\TinyCurl\URL $url
 	 *
-	 * @return ResponseInterface
+	 * @return \chillerlan\TinyCurl\Response\ResponseInterface
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	public function fetch($url, array $params = []){
+	public function fetch(URL $url){
 		$this->curl = curl_init();
-		$parsedURL = parse_url($url);
 
-		if(
-			   !isset($parsedURL['scheme'])
-			|| !isset($parsedURL['host'])
-			|| !in_array($parsedURL['scheme'], ['http', 'https', 'ftp'], true)
-		){
+		if(!$url->host || !in_array($url->scheme, ['http', 'https', 'ftp'], true)){
 			throw new RequestException('$url');
 		}
 
-		$request_url = $parsedURL['scheme'].'://'.$parsedURL['host'];
-
-		if(isset($parsedURL['path']) && !empty($parsedURL['path'])){
-			$request_url .= $parsedURL['path'];
-		}
-
-		if(isset($parsedURL['query']) && !empty($parsedURL['query'])){
-			parse_str($parsedURL['query'], $url_params);
-			$params = array_merge($url_params, $params);
-		}
-
-		if(count($params) > 0){
-			$request_url .= '?'.http_build_query($params);
-		}
-
-		return $this->getResponse($request_url);
+		return $this->getResponse((string)$url);
 	}
 
 	/**

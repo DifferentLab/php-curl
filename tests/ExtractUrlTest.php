@@ -11,8 +11,6 @@
 
 namespace chillerlan\TinyCurlTest;
 
-namespace chillerlan\TinyCurlTest;
-
 use chillerlan\TinyCurl\Request;
 use chillerlan\TinyCurl\RequestOptions;
 
@@ -34,9 +32,7 @@ class ExtractUrlTest extends \PHPUnit_Framework_TestCase{
 		$o1 = new RequestOptions;
 		$o1->curl_options = $co;
 		$o1->ca_info = __DIR__.'/test-cacert.pem';
-
 		$this->requestWithCA = new Request($o1);
-
 
 		$o2 = new RequestOptions;
 		$o2->curl_options = $co;
