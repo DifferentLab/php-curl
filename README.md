@@ -4,7 +4,6 @@
 [![Coverage][coverage-badge]][coverage]
 [![Issues][issue-badge]][issues]
 [![SensioLabsInsight][sensio-badge]][sensio]
-[![GitterChat][gitter-badge]][gitter]
 
 [packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg?style=flat-square
 [packagist]: https://packagist.org/packages/chillerlan/php-curl
@@ -18,8 +17,6 @@
 [issues]: https://github.com/codemasher/php-curl/issues
 [sensio-badge]: https://img.shields.io/sensiolabs/i/efcadc7a-c386-4c1b-916d-fc8e1ad7075b.svg?style=flat-square
 [sensio]: https://insight.sensiolabs.com/projects/efcadc7a-c386-4c1b-916d-fc8e1ad7075b
-[gitter-badge]: https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square
-[gitter]: https://gitter.im/codemasher/php-curl
 
 # codemasher/php-curl
 A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrapper, mostly for API scraping purposes.
