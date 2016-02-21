@@ -201,16 +201,15 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected function createTempTable(){
 
 		$sql_lang = array_map(function($lang){
-			return '`'.$lang.'` text COLLATE utf8mb4_bin NOT NULL,';
+			return '`'.$lang.'` text COLLATE utf8mb4_bin NOT NULL, ';
 		}, self::API_LANGUAGES);
 
 		$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
 		       .'`id` int(10) unsigned NOT NULL,'
 		       .substr(implode(' ', $sql_lang), 0, -1)
-		       .'`updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
+		       .' `updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
 		       .'`response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
 		       .'PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
-
 		$this->DBDriverInterface->raw('DROP TEMPORARY TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
 		$this->DBDriverInterface->raw($sql);
 	}
@@ -222,7 +221,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		$this->starttime = microtime(true);
 		$this->logToCLI('self::getURLs() fetch');
 
-		$response = (new Request)->fetch('https://api.guildwars2.com/v2/items');
+		$response = (new Request)->fetch(new URL('https://api.guildwars2.com/v2/items'));
 
 		if($response->info->http_code !== 200){
 			throw new Exception('failed to get /v2/items');
