@@ -11,9 +11,10 @@
 
 namespace Example\GW2API;
 
-use chillerlan\Framework\Core\Traits\DatabaseTrait;
-use chillerlan\Framework\Database\DBOptions;
-use chillerlan\Framework\Database\Drivers\PDO\PDOMySQLDriver;
+use chillerlan\Database\Drivers\MySQLi\MySQLiDriver;
+use chillerlan\Database\Traits\DatabaseTrait;
+use chillerlan\Database\DBOptions;
+use chillerlan\Database\Drivers\PDO\PDOMySQLDriver;
 use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiRequestOptions;
 use chillerlan\TinyCurl\Request;
@@ -38,7 +39,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
 	const CACERT        = __DIR__.'/test-cacert.pem';
 	const TEMP_TABLE    = 'gw2_items_temp';
-	const DBDRIVER      = PDOMySQLDriver::class; // MySQLiDriver::class
+	const DBDRIVER      = MySQLiDriver::class; // MySQLiDriver::class
 	const API_BASE      = 'https://api.guildwars2.com/v2/items';
 	const CONFIGDIR     = __DIR__.'/../../config';
 
@@ -48,7 +49,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $multiRequest;
 
 	/**
-	 * @var \chillerlan\Framework\Database\Drivers\DBDriverInterface
+	 * @var \chillerlan\Database\Drivers\DBDriverInterface
 	 */
 	protected $DBDriverInterface;
 
@@ -236,11 +237,12 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		$this->logToCLI('self::getURLs() $response to DB finish');
 
 		$chunks = array_chunk($response->json, self::CHUNK_SIZE);
-		foreach($chunks as $chunk){
+
+		array_map(function($chunk){
 			foreach(self::API_LANGUAGES as $lang){
 				$this->urls[] = new URL(self::API_BASE.'?lang='.$lang.'&ids='.implode(',', $chunk));
 			}
-		}
+		}, $chunks);
 
 		$this->logToCLI('self::getURLs() finished');
 	}

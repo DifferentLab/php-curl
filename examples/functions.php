@@ -42,7 +42,7 @@ if(!function_exists('array_sort_recursive')){
  * @link http://php.net/manual/function.array-diff-assoc.php#111675
  */
 if(!function_exists('array_diff_assoc_recursive')){
-	
+
 	function array_diff_assoc_recursive(array $arr1, array $arr2, $identical = false){
 		$diff = $identical ? array_diff_key($arr2, $arr1) : [];
 
@@ -70,4 +70,13 @@ if(!function_exists('array_diff_assoc_recursive')){
 		return $diff;
 	}
 
+}
+
+/**
+ * Checks wether the script is running in CLI mode.
+ */
+if(!function_exists('is_cli')){
+	function is_cli(){
+		return !isset($_SERVER['SERVER_SOFTWARE']) && (PHP_SAPI === 'cli' || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0));
+	}
 }
