@@ -14,7 +14,7 @@
 [travis]: https://travis-ci.org/codemasher/php-curl
 [coverage-badge]: https://img.shields.io/codecov/c/github/codemasher/php-curl.svg?style=flat-square
 [coverage]: https://codecov.io/github/codemasher/php-curl
-[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/filp/whoops.svg?style=flat-square
+[scrutinizer-badge]: https://scrutinizer-ci.com/g/codemasher/php-curl/badges/quality-score.png?b=master
 [scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
 [issue-badge]: https://img.shields.io/github/issues/codemasher/php-curl.svg?style=flat-square
 [issues]: https://github.com/codemasher/php-curl/issues
