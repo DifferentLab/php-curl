@@ -2,6 +2,7 @@
 [![license][license-badge]][license]
 [![Travis][travis-badge]][travis]
 [![Coverage][coverage-badge]][coverage]
+[![Scrunitizer][scrutinizer-badge]][scrutinizer]
 [![Issues][issue-badge]][issues]
 [![SensioLabsInsight][sensio-badge]][sensio]
 
@@ -13,6 +14,8 @@
 [travis]: https://travis-ci.org/codemasher/php-curl
 [coverage-badge]: https://img.shields.io/codecov/c/github/codemasher/php-curl.svg?style=flat-square
 [coverage]: https://codecov.io/github/codemasher/php-curl
+[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/filp/whoops.svg?style=flat-square
+[scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
 [issue-badge]: https://img.shields.io/github/issues/codemasher/php-curl.svg?style=flat-square
 [issues]: https://github.com/codemasher/php-curl/issues
 [sensio-badge]: https://img.shields.io/sensiolabs/i/efcadc7a-c386-4c1b-916d-fc8e1ad7075b.svg?style=flat-square
