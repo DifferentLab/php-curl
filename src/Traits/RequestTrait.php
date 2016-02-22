@@ -3,13 +3,13 @@
  *
  * @filesource   RequestTrait.php
  * @created      13.02.2016
- * @package      chillerlan\bbcode\Traits
+ * @package      chillerlan\TinyCurl\Traits
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2016 Smiley
  * @license      MIT
  */
 
-namespace chillerlan\bbcode\Traits;
+namespace chillerlan\TinyCurl\Traits;
 
 use chillerlan\TinyCurl\Request;
 use chillerlan\TinyCurl\RequestOptions;
