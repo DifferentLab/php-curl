@@ -37,7 +37,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	const CONCURRENT    = 10;
 	const CHUNK_SIZE    = 100;
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
-	const CACERT        = __DIR__.'/test-cacert.pem';
+	const CACERT        = __DIR__.'/../../tests/test-cacert.pem';
 	const TEMP_TABLE    = 'gw2_items_temp';
 	const DBDRIVER      = MySQLiDriver::class; // MySQLiDriver::class
 	const API_BASE      = 'https://api.guildwars2.com/v2/items';
