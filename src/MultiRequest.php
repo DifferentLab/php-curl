@@ -140,15 +140,13 @@ class MultiRequest{
 		$this->stack      = $urls;
 		$this->curl_multi = curl_multi_init();
 
-		$url_count = count($this->stack);
-
-		if($this->options->window_size > $url_count){
-			$this->options->window_size = $url_count;
-		}
+		curl_multi_setopt($this->curl_multi, CURLMOPT_PIPELINING, 2);
+		curl_multi_setopt($this->curl_multi, CURLMOPT_MAXCONNECTS, $this->options->window_size);
 
 		// shoot out the first batch of requests
 		array_map(function(){
 			$this->createHandle();
+			usleep(100);
 		}, range(1, $this->options->window_size));
 
 		/// ...and start processing the stack
@@ -177,7 +175,7 @@ class MultiRequest{
 	}
 
 	/**
-	 * creates a new handle for $request[$index]
+	 * creates a new cURL handle
 	 */
 	protected function createHandle(){
 
