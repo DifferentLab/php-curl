@@ -92,18 +92,7 @@ class URL{
 			$this->method = $method;
 		}
 
-		$url = parse_url($url);
-		$this->host      = !isset($url['host'])      ? null : $url['host'];
-		$this->port      = !isset($url['port'])      ? null : $url['port'];
-		$this->path      = !isset($url['path'])      ? null : $url['path'];
-		$this->scheme    = !isset($url['scheme'])    ? null : $url['scheme'];
-		$this->query     = !isset($url['query'])     ? null : $url['query'];
-		$this->fragment  = !isset($url['fragment'])  ? null : $url['fragment'];
-
-		if($this->query){
-			parse_str($this->query, $this->parsedquery);
-		}
-
+		$this->parseUrl();
 	}
 
 	/**
@@ -140,6 +129,25 @@ class URL{
 		$url .= '?'.http_build_query(array_merge($this->parsedquery, $this->params));
 
 		return $url;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function parseUrl(){
+		$url = parse_url($this->url);
+		
+		$this->host      = !isset($url['host'])      ? null : $url['host'];
+		$this->port      = !isset($url['port'])      ? null : $url['port'];
+		$this->path      = !isset($url['path'])      ? null : $url['path'];
+		$this->scheme    = !isset($url['scheme'])    ? null : $url['scheme'];
+		$this->query     = !isset($url['query'])     ? null : $url['query'];
+		$this->fragment  = !isset($url['fragment'])  ? null : $url['fragment'];
+
+		if($this->query){
+			parse_str($this->query, $this->parsedquery);
+		}
+
 	}
 
 	/**

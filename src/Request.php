@@ -98,7 +98,7 @@ class Request{
 	/**
 	 * @param string $url
 	 *
-	 * @return string|bool
+	 * @return string
 	 * @link http://www.internoetics.com/2012/11/12/resolve-short-urls-to-their-destination-url-php-api/
 	 */
 	protected function extract($url){
@@ -121,7 +121,7 @@ class Request{
 			case isset($headers->location) && !empty($headers->location):
 				return $headers->location; // @codeCoverageIgnore
 			default:
-				return false;
+				return '';
 		}
 
 	}

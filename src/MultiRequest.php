@@ -71,20 +71,7 @@ class MultiRequest{
 		}
 
 		$this->options = $options;
-
-		if($this->options->handler){
-			$this->setHandler();
-		}
-
-		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
-		$this->curl_options = $this->options->curl_options + [
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
-			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
-			CURLOPT_CAINFO         => $ca_info,
-			CURLOPT_HEADER         => true,
-		];
-
+		$this->setOptions();
 	}
 
 	/**
@@ -172,6 +159,26 @@ class MultiRequest{
 	 */
 	public function getResponseData(){
 		return $this->responses;
+	}
+
+	/**
+	 * @return void
+	 * @throws \chillerlan\TinyCurl\RequestException
+	 */
+	protected function setOptions(){
+
+		if($this->options->handler){
+			$this->setHandler();
+		}
+
+		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
+		$this->curl_options = $this->options->curl_options + [
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
+				CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
+				CURLOPT_CAINFO         => $ca_info,
+				CURLOPT_HEADER         => true,
+			];
 	}
 
 	/**
