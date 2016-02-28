@@ -37,12 +37,22 @@ class Request{
 	 * @param \chillerlan\TinyCurl\RequestOptions|null $options
 	 */
 	public function __construct(RequestOptions $options = null){
+		$this->setOptions($options ?: new RequestOptions);
+	}
 
-		if(!$options){
-			$options = new RequestOptions;
-		}
-
+	/**
+	 * @param \chillerlan\TinyCurl\RequestOptions $options
+	 */
+	public function setOptions(RequestOptions $options){
 		$this->options = $options;
+
+		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
+		$this->options->curl_options += [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
+			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
+			CURLOPT_CAINFO         => $ca_info,
+		];
 	}
 
 	/**
@@ -51,15 +61,7 @@ class Request{
 	 * @return \chillerlan\TinyCurl\Response\Response
 	 */
 	protected function getResponse($url){
-		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
-
-		curl_setopt_array($this->curl, $this->options->curl_options + [
-			CURLOPT_URL            => $url,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
-			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
-			CURLOPT_CAINFO         => $ca_info,
-		]);
+		curl_setopt_array($this->curl, $this->options->curl_options + [CURLOPT_URL => $url]);
 
 		return new Response($this->curl);
 	}

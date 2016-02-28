@@ -65,13 +65,7 @@ class MultiRequest{
 	 * @param \chillerlan\TinyCurl\MultiRequestOptions|null $options
 	 */
 	public function __construct(MultiRequestOptions $options = null){
-
-		if(!$options){
-			$options = new MultiRequestOptions;
-		}
-
-		$this->options = $options;
-		$this->setOptions();
+		$this->setOptions($options ?: new MultiRequestOptions);
 	}
 
 	/**
@@ -162,16 +156,19 @@ class MultiRequest{
 	}
 
 	/**
-	 * @return void
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
+	 *
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	protected function setOptions(){
+	public function setOptions(MultiRequestOptions $options){
+		$this->options = $options;
 
 		if($this->options->handler){
 			$this->setHandler();
 		}
 
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
+
 		$this->curl_options = $this->options->curl_options + [
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
