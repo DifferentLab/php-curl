@@ -13,6 +13,7 @@ namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiRequestOptions;
+use chillerlan\TinyCurl\URL;
 use stdClass;
 
 class MultiRequestTest extends \PHPUnit_Framework_TestCase{
@@ -28,7 +29,7 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 		foreach($ids as $chunk){
 			foreach(['de', 'en', 'es', 'fr', 'zh'] as $lang){
-				$urls[] = 'lang='.$lang.'&ids='.implode(',', $chunk);
+				$urls[] = new URL('https://api.guildwars2.com/v2/items', ['lang' => $lang, 'ids' => implode(',', $chunk)]);
 			}
 		}
 
@@ -39,7 +40,6 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 		$options = new MultiRequestOptions;
 		$options->handler     = MultiResponseHandlerTest::class;
 		$options->ca_info     = __DIR__.'/test-cacert.pem';
-		$options->base_url    = 'https://api.guildwars2.com/v2/items?';
 		$options->window_size = 3;
 
 		$request = new MultiRequest($options);
