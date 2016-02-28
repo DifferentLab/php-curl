@@ -35,7 +35,7 @@ class Request{
 	/**
 	 * Request constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\RequestOptions $options
+	 * @param \chillerlan\TinyCurl\RequestOptions|null $options
 	 */
 	public function __construct(RequestOptions $options = null){
 
@@ -49,7 +49,7 @@ class Request{
 	/**
 	 * @param string $url
 	 *
-	 * @return ResponseInterface
+	 * @return \chillerlan\TinyCurl\Response\Response
 	 */
 	protected function getResponse($url){
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
@@ -68,7 +68,7 @@ class Request{
 	/**
 	 * @param \chillerlan\TinyCurl\URL $url
 	 *
-	 * @return \chillerlan\TinyCurl\Response\ResponseInterface
+	 * @return \chillerlan\TinyCurl\Response\Response
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(URL $url){
@@ -84,7 +84,7 @@ class Request{
 	/**
 	 * @param string $url
 	 *
-	 * @return array
+	 * @return array<string>
 	 */
 	public function extractShortUrl($url){
 		$urls = [$url];
@@ -121,7 +121,8 @@ class Request{
 			// look for a location header
 			case isset($headers->location) && !empty($headers->location):
 				return $headers->location; // @codeCoverageIgnore
-			default: return false;
+			default:
+				return false;
 		}
 
 	}

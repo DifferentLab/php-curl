@@ -15,7 +15,11 @@ namespace chillerlan\TinyCurl\Response;
 use stdClass;
 
 /**
- *
+ * @property mixed body
+ * @property mixed error
+ * @property mixed headers
+ * @property mixed info
+ * @property mixed json
  */
 class Response implements ResponseInterface{
 
@@ -83,12 +87,18 @@ class Response implements ResponseInterface{
 	public function __get($property){
 
 		switch($property){
-			case 'body'   : return $this->getBody();
-			case 'info'   : return $this->curl_info;
-			case 'json'   : return json_decode($this->response_body);
-			case 'error'  : return $this->response_error;
-			case 'headers': return $this->response_headers; //  && !$this instanceof MultiResponse
-			default: throw new ResponseException('!$property: '.$property);
+			case 'body':
+				return $this->getBody();
+			case 'info':
+				return $this->curl_info;
+			case 'json':
+				return json_decode($this->response_body);
+			case 'error':
+				return $this->response_error;
+			case 'headers':
+				return $this->response_headers;
+			default:
+				throw new ResponseException('!$property: '.$property);
 		}
 
 	}

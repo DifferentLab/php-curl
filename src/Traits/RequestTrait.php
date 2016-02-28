@@ -35,7 +35,7 @@ trait RequestTrait{
 	 * @param array  $params
 	 * @param array  $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response\ResponseInterface
+	 * @return \chillerlan\TinyCurl\Response\Response
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	protected function fetch($url, array $params = [], array $curl_options = []){

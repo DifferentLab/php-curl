@@ -13,7 +13,11 @@
 namespace chillerlan\TinyCurl\Response;
 
 /**
- *
+ * @property mixed body
+ * @property mixed error
+ * @property mixed headers
+ * @property mixed info
+ * @property mixed json
  */
 class MultiResponse extends Response implements ResponseInterface{
 
@@ -28,7 +32,7 @@ class MultiResponse extends Response implements ResponseInterface{
 
 		if(is_array($headers)){
 			foreach($headers as $line){
-				$this->headerLine(null, $line);
+				$this->headerLine($this->curl, $line);
 			}
 		}
 

@@ -36,9 +36,9 @@ class MultiRequest{
 	protected $curl_options = [];
 
 	/**
-	 * An array of the request URLs as \chillerlan\TinyCurl\URL object
+	 * An array of the request URLs
 	 *
-	 * @var array
+	 * @var array<\chillerlan\TinyCurl\URL>
 	 */
 	protected $stack = [];
 
@@ -62,7 +62,7 @@ class MultiRequest{
 	/**
 	 * MultiRequest constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions|null $options
 	 */
 	public function __construct(MultiRequestOptions $options = null){
 
@@ -99,7 +99,7 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface $handler
+	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface|null $handler
 	 *
 	 * @return $this
 	 * @throws \chillerlan\TinyCurl\RequestException
