@@ -47,12 +47,15 @@ class Request{
 		$this->options = $options;
 
 		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
-		$this->options->curl_options += [
+
+		$curl_options = [
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
 			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
 			CURLOPT_CAINFO         => $ca_info,
 		];
+
+		$this->options->curl_options += $curl_options;
 	}
 
 	/**
