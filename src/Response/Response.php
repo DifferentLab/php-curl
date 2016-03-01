@@ -15,11 +15,12 @@ namespace chillerlan\TinyCurl\Response;
 use stdClass;
 
 /**
- * @property mixed body
- * @property mixed error
- * @property mixed headers
- * @property mixed info
- * @property mixed json
+ * @property \stdClass body
+ * @property \stdClass error
+ * @property \stdClass headers
+ * @property \stdClass info
+ * @property string    json
+ * @property array     json_array
  */
 class Response implements ResponseInterface{
 
@@ -93,6 +94,8 @@ class Response implements ResponseInterface{
 				return $this->curl_info;
 			case 'json':
 				return json_decode($this->response_body);
+			case 'json_array':
+				return json_decode($this->response_body, true);
 			case 'error':
 				return $this->response_error;
 			case 'headers':
