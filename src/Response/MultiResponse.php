@@ -13,12 +13,12 @@
 namespace chillerlan\TinyCurl\Response;
 
 /**
- * @property \stdClass body
- * @property \stdClass error
- * @property \stdClass headers
- * @property \stdClass info
- * @property \stdClass json
- * @property array     json_array
+ * @property mixed body
+ * @property mixed error
+ * @property mixed headers
+ * @property mixed info
+ * @property mixed json
+ * @property mixed json_array
  */
 class MultiResponse extends Response implements ResponseInterface{
 
