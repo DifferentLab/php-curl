@@ -114,7 +114,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @expectedExceptionMessage !$property: foobar
 	 */
 	public function testResponseGetMagicFieldException(){
-		var_dump($this->requestWithCA->fetch(new URL('https://api.guildwars2.com/v2/build'))->foobar);
+		$this->requestWithCA->fetch(new URL('https://api.guildwars2.com/v2/build'))->foobar;
 	}
 
 }
