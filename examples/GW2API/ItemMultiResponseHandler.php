@@ -11,10 +11,8 @@
 
 namespace Example\GW2API;
 
-use chillerlan\Database\Drivers\MySQLi\MySQLiDriver;
 use chillerlan\Database\Traits\DatabaseTrait;
 use chillerlan\Database\DBOptions;
-use chillerlan\Database\Drivers\PDO\PDOMySQLDriver;
 use chillerlan\TinyCurl\MultiRequest;
 use chillerlan\TinyCurl\MultiRequestOptions;
 use chillerlan\TinyCurl\Request;
@@ -35,11 +33,10 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 * play around with chunksize and concurrent requests to get best performance results
 	 */
 	const CONCURRENT    = 10;
-	const CHUNK_SIZE    = 100;
+	const CHUNK_SIZE    = 200;
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
 	const CACERT        = __DIR__.'/../../tests/test-cacert.pem';
 	const TEMP_TABLE    = 'gw2_items_temp';
-	const DBDRIVER      = MySQLiDriver::class; // MySQLiDriver::class
 	const API_BASE      = 'https://api.guildwars2.com/v2/items';
 	const CONFIGDIR     = __DIR__.'/../../config';
 
@@ -49,9 +46,9 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $multiRequest;
 
 	/**
-	 * @var \chillerlan\Database\Drivers\DBDriverInterface
+	 * @var \Example\GW2API\GW2MySQLiDriver
 	 */
-	protected $DBDriverInterface;
+	protected $GW2MySQLiDriver;
 
 	/**
 	 * @var array
@@ -86,7 +83,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			'password' => getenv('DB_MYSQLI_PASSWORD'),
 		]);
 
-		$this->DBDriverInterface = $this->dbconnect(self::DBDRIVER, $dbOptions);
+		$this->GW2MySQLiDriver = $this->dbconnect(GW2MySQLiDriver::class, $dbOptions);
 	}
 
 	/**
@@ -100,7 +97,6 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 
 		$options = new MultiRequestOptions;
 		$options->ca_info     = self::CACERT;
-		$options->base_url    = self::API_BASE.'?';
 		$options->window_size = self::CONCURRENT;
 
 		$request = new MultiRequest($options);
@@ -150,18 +146,18 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 				return false;
 			}
 
-			$sql = 'UPDATE '.self::TEMP_TABLE.' SET `'.$lang.'` = ? WHERE `id` = ?';
-			$values = [];
-
-			foreach($response->json as $item){
-#				$this->logToCLI(str_pad($item->id, 5).' - '.$item->name);
-				// just dumping the raw JSON for each item here because i'm lazy (or to process the itemdata later)
-				$values[] = [json_encode($item), $item->id];
-			}
-
 			// insert the data as soon as we receive it
 			// this will result in a couple more database writes but won't block the responses much
-			if($this->DBDriverInterface->multi($sql, $values)){
+			$query = $this->GW2MySQLiDriver->multi_callback(
+				'UPDATE '.self::TEMP_TABLE.' SET `'.$lang.'` = ? WHERE `id` = ?',
+				$response->json,
+				function($item){
+					// just dumping the raw JSON for each item here because i'm lazy (or to process the itemdata later)
+					return [json_encode($item), $item->id];
+				}
+			);
+
+			if($query){
 				$this->logToCLI('['.str_pad($this->callback, 6, ' ',STR_PAD_RIGHT).']['.$lang.'] '.md5($response->info->url).' updated');
 			}
 			else{
@@ -201,18 +197,17 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 */
 	protected function createTempTable(){
 
-		$sql_lang = array_map(function($lang){
-			return '`'.$lang.'` text COLLATE utf8mb4_bin NOT NULL, ';
-		}, self::API_LANGUAGES);
-
 		$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
-		       .'`id` int(10) unsigned NOT NULL,'
-		       .substr(implode(' ', $sql_lang), 0, -1)
-		       .' `updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
-		       .'`response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
-		       .'PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
-		$this->DBDriverInterface->raw('DROP TEMPORARY TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
-		$this->DBDriverInterface->raw($sql);
+		       .'`id` int(10) unsigned NOT NULL, '
+		       .implode(' text NOT NULL, ', array_map(function($lang){
+					return '`'.$lang.'`';
+				}, self::API_LANGUAGES))
+		       .' text NOT NULL, `updated` tinyint(1) unsigned NOT NULL DEFAULT 0,'
+		       .' `response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
+		       .' PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
+
+		$this->GW2MySQLiDriver->raw('DROP TEMPORARY TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
+		$this->GW2MySQLiDriver->raw($sql);
 	}
 
 	/**
@@ -220,7 +215,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 */
 	protected function getURLs(){
 		$this->starttime = microtime(true);
-		$this->logToCLI('self::getURLs() fetch');
+		$this->logToCLI(__METHOD__.' start');
 
 		$response = (new Request)->fetch(new URL('https://api.guildwars2.com/v2/items'));
 
@@ -228,23 +223,24 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			throw new Exception('failed to get /v2/items');
 		}
 
-		$values = array_map(function($item){
-			return [$item];
-		}, $response->json);
+		$json = $response->json;
+		$this->logToCLI(__METHOD__.' json');
 
-		$this->logToCLI('self::getURLs() $response to DB start');
-		$this->DBDriverInterface->multi('INSERT INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)', $values);
-		$this->logToCLI('self::getURLs() $response to DB finish');
-
-		$chunks = array_chunk($response->json, self::CHUNK_SIZE);
+		$this->GW2MySQLiDriver->multi_callback(
+			'INSERT IGNORE INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)',
+			$json,
+			function ($item){
+				return [$item];
+			}
+		);
 
 		array_map(function($chunk){
 			foreach(self::API_LANGUAGES as $lang){
 				$this->urls[] = new URL(self::API_BASE.'?lang='.$lang.'&ids='.implode(',', $chunk));
 			}
-		}, $chunks);
+		}, array_chunk($json, self::CHUNK_SIZE));
 
-		$this->logToCLI('self::getURLs() finished');
+		$this->logToCLI(__METHOD__.' end');
 	}
 
 }
