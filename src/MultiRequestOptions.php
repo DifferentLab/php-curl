@@ -16,14 +16,12 @@ namespace chillerlan\TinyCurl;
  */
 class MultiRequestOptions extends RequestOptions{
 
-	public $handler = null;
-
 	/**
-	 * the base URL for each request, useful if you're hammering the same host all the time
+	 * an optional handler FQCN
 	 *
 	 * @var string
 	 */
-	public $base_url = '';
+	public $handler = null;
 
 	/**
 	 * maximum of concurrent requests
