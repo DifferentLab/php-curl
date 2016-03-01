@@ -56,6 +56,7 @@ class ExtractUrlTest extends \PHPUnit_Framework_TestCase{
 					'https://api.guildwars2.com/v2/build',
 				],
 			],
+/*			
 			[
 				[
 					'http://curl.haxx.se/ca/cacert.pem',
@@ -69,6 +70,7 @@ class ExtractUrlTest extends \PHPUnit_Framework_TestCase{
 #					'http://html5shim.googlecode.com/svn/trunk/html5.js',
 				],
 			],
+#*/    
 		];
 	}
 

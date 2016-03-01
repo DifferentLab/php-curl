@@ -71,26 +71,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 	 * @dataProvider fetchDataProvider
 	 */
 	public function testFetchWithCA($url, array $params){
-		$this->response = $this->requestWithCA->fetch(new URL($url, $params));
-
-		$this->assertEquals(0, $this->response->error->code);
-		$this->assertEquals(200, $this->response->info->http_code);
-		$this->assertEquals('*', $this->response->headers->{'access-control-allow-origin'});
-		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
-		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
+		$response = $this->requestWithCA->fetch(new URL($url, $params));
+		$this->assertApiResponse($response);
 	}
 
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
 	public function testFetchNoCA($url, array $params){
-		$this->response = $this->requestNoCA->fetch(new URL($url, $params));
+		$response = $this->requestNoCA->fetch(new URL($url, $params));
+		$this->assertApiResponse($response);
+	}
 
-		$this->assertEquals(0, $this->response->error->code);
-		$this->assertEquals(200, $this->response->info->http_code);
-		$this->assertEquals('*', $this->response->headers->{'access-control-allow-origin'});
-		$this->assertEquals(self::GW2_ACC_ID, $this->response->json->id);
-		$this->assertEquals('application/json; charset=utf-8', $this->response->body->content_type);
+
+	protected function assertApiResponse($response){
+		$this->assertEquals(0, $response->error->code);
+		$this->assertEquals(200, $response->info->http_code);
+		$this->assertEquals('*', $response->headers->{'access-control-allow-origin'});
+		$this->assertEquals(self::GW2_ACC_ID, $response->json->id);
+		$this->assertEquals(self::GW2_ACC_ID, $response->json_array['id']);
+		$this->assertEquals('application/json; charset=utf-8', $response->body->content_type);
 	}
 
 	/**
