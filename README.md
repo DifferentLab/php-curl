@@ -6,19 +6,19 @@
 [![Issues][issue-badge]][issues]
 [![SensioLabsInsight][sensio-badge]][sensio]
 
-[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg?style=flat-square
+[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg
 [packagist]: https://packagist.org/packages/chillerlan/php-curl
-[license-badge]: https://img.shields.io/packagist/l/chillerlan/php-curl.svg?style=flat-square
+[license-badge]: https://img.shields.io/packagist/l/chillerlan/php-curl.svg
 [license]: https://github.com/codemasher/php-curl/blob/master/LICENSE
-[travis-badge]: https://img.shields.io/travis/codemasher/php-curl.svg?style=flat-square
+[travis-badge]: https://travis-ci.org/codemasher/php-curl.svg?branch=master
 [travis]: https://travis-ci.org/codemasher/php-curl
-[coverage-badge]: https://img.shields.io/codecov/c/github/codemasher/php-curl.svg?style=flat-square
+[coverage-badge]: https://codecov.io/github/codemasher/php-curl/coverage.svg?branch=master
 [coverage]: https://codecov.io/github/codemasher/php-curl
 [scrutinizer-badge]: https://scrutinizer-ci.com/g/codemasher/php-curl/badges/quality-score.png?b=master
 [scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
-[issue-badge]: https://img.shields.io/github/issues/codemasher/php-curl.svg?style=flat-square
+[issue-badge]: https://img.shields.io/github/issues/codemasher/php-curl.svg
 [issues]: https://github.com/codemasher/php-curl/issues
-[sensio-badge]: https://img.shields.io/sensiolabs/i/efcadc7a-c386-4c1b-916d-fc8e1ad7075b.svg?style=flat-square
+[sensio-badge]: https://img.shields.io/sensiolabs/i/efcadc7a-c386-4c1b-916d-fc8e1ad7075b.svg
 [sensio]: https://insight.sensiolabs.com/projects/efcadc7a-c386-4c1b-916d-fc8e1ad7075b
 
 # codemasher/php-curl
