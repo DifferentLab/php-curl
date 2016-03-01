@@ -105,7 +105,7 @@ class URL{
 	}
 
 	/**
-	 * @return string
+	 * @return string URL with merged params
 	 */
 	public function __toString(){
 		return $this->mergeParams();
@@ -114,21 +114,22 @@ class URL{
 	/**
 	 * @return string
 	 */
-	public function overrideParams(){
-		$url  = $this->getURL();
-		$url .= '?'.http_build_query($this->params);
+	public function originalParams(){
+		return $this->getURL().'?'.http_build_query($this->parsedquery);
+	}
 
-		return $url;
+	/**
+	 * @return string
+	 */
+	public function overrideParams(){
+		return $this->getURL().'?'.http_build_query($this->params);
 	}
 
 	/**
 	 * @return string
 	 */
 	public function mergeParams(){
-		$url  = $this->getURL();
-		$url .= '?'.http_build_query(array_merge($this->parsedquery, $this->params));
-
-		return $url;
+		return $this->getURL().'?'.http_build_query(array_merge($this->parsedquery, $this->params));
 	}
 
 	/**
@@ -172,7 +173,6 @@ class URL{
 		if($this->path){
 			$url .= $this->path;
 		}
-
 
 		return $url;
 	}

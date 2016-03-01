@@ -121,6 +121,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$url = new URL('https://api.guildwars2.com:443/v2/items?lang=de&ids=all', ['lang' => 'fr']);
 
 		$this->assertEquals((string)$url, $url->mergeParams());
+		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=de&ids=all', $url->originalParams());
 		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr&ids=all', $url->mergeParams());
 		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr', $url->overrideParams());
 	}
