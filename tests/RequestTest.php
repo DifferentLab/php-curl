@@ -117,4 +117,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->requestWithCA->fetch(new URL('https://api.guildwars2.com/v2/build'))->foobar;
 	}
 
+	public function testURLcoverage(){
+		$url = new URL('https://api.guildwars2.com:443/v2/items?lang=de&ids=all', ['lang' => 'fr']);
+
+		$this->assertEquals((string)$url, $url->mergeParams());
+		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr&ids=all', $url->mergeParams());
+		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr', $url->overrideParams());
+	}
 }
