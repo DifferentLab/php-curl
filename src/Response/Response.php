@@ -19,7 +19,7 @@ use stdClass;
  * @property \stdClass error
  * @property \stdClass headers
  * @property \stdClass info
- * @property string    json
+ * @property \stdClass json
  * @property array     json_array
  */
 class Response implements ResponseInterface{

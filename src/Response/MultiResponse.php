@@ -17,7 +17,7 @@ namespace chillerlan\TinyCurl\Response;
  * @property \stdClass error
  * @property \stdClass headers
  * @property \stdClass info
- * @property string    json
+ * @property \stdClass json
  * @property array     json_array
  */
 class MultiResponse extends Response implements ResponseInterface{
