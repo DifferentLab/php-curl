@@ -24,6 +24,7 @@ namespace chillerlan\TinyCurl;
  * @property string fragment
  * @property array  params
  * @property array  parsedquery
+ * @property array  body
  */
 class URL{
 
@@ -78,17 +79,25 @@ class URL{
 	protected $params = [];
 
 	/**
+	 * @var array
+	 */
+	protected $body = [];
+
+	/**
 	 * URL constructor.
 	 *
 	 * @param string $url
 	 * @param array  $params
 	 * @param string $method
+	 * @param array  $body
 	 */
-	public function __construct($url, array $params = [], $method = 'GET'){
+	public function __construct($url, array $params = [], $method = 'GET', $body = []){
 		$this->url    = $url;
 		$this->params = $params;
+		$this->body   = $body;
 
-		if(in_array(strtoupper($method), ['GET', 'POST'])){
+		$method = strtoupper($method);
+		if(in_array($method, ['GET', 'POST'], true)){ // @todo
 			$this->method = $method;
 		}
 
@@ -137,7 +146,7 @@ class URL{
 	 */
 	protected function parseUrl(){
 		$url = parse_url($this->url);
-		
+
 		$this->host      = !isset($url['host'])      ? null : $url['host'];
 		$this->port      = !isset($url['port'])      ? null : $url['port'];
 		$this->path      = !isset($url['path'])      ? null : $url['path'];
