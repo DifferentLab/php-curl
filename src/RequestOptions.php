@@ -34,7 +34,7 @@ class RequestOptions{
 	 * CA Root Certificates for use with CURL/SSL
 	 *
 	 * @var string
-	 * @link http://init.haxx.se/ca/cacert.pem
+	 * @link https://curl.haxx.se/ca/cacert.pem
 	 */
 	public $ca_info = null;
 
