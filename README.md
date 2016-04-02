@@ -1,10 +1,12 @@
+# codemasher/php-curl
+A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrapper, mostly for API scraping purposes.
+
 [![version][packagist-badge]][packagist]
 [![license][license-badge]][license]
 [![Travis][travis-badge]][travis]
 [![Coverage][coverage-badge]][coverage]
 [![Scrunitizer][scrutinizer-badge]][scrutinizer]
-[![Issues][issue-badge]][issues]
-[![SensioLabsInsight][sensio-badge]][sensio]
+[![Code Climate][codeclimate-badge]][codeclimate]
 
 [packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg
 [packagist]: https://packagist.org/packages/chillerlan/php-curl
@@ -16,15 +18,10 @@
 [coverage]: https://codecov.io/github/codemasher/php-curl
 [scrutinizer-badge]: https://scrutinizer-ci.com/g/codemasher/php-curl/badges/quality-score.png?b=master
 [scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
-[issue-badge]: https://img.shields.io/github/issues/codemasher/php-curl.svg
-[issues]: https://github.com/codemasher/php-curl/issues
-[sensio-badge]: https://img.shields.io/sensiolabs/i/efcadc7a-c386-4c1b-916d-fc8e1ad7075b.svg
-[sensio]: https://insight.sensiolabs.com/projects/efcadc7a-c386-4c1b-916d-fc8e1ad7075b
+[codeclimate-badge]: https://codeclimate.com/github/codemasher/php-curl/badges/gpa.svg
+[codeclimate]: https://codeclimate.com/github/codemasher/php-curl
 
-# codemasher/php-curl
-A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrapper, mostly for API scraping purposes.
-
-Features:
+##Features:
 
  - No PSR-7!
  - No 87 extra layers of abstraction!
@@ -58,6 +55,6 @@ Point the namespace `chillerlan/TinyCurl` to the folder `src` of the package.
 Profit!
 
 ### Usage
-
-##Disclaimer!
+## ???
+## Disclaimer!
 I don't take responsibility for molten phone lines, bloated hard disks, self-induced DDoS, broken screens etc. Use at your own risk! ;)
