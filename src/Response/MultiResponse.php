@@ -13,14 +13,9 @@
 namespace chillerlan\TinyCurl\Response;
 
 /**
- * @property mixed body
- * @property mixed error
- * @property mixed headers
- * @property mixed info
- * @property mixed json
- * @property mixed json_array
+ * 
  */
-class MultiResponse extends Response implements ResponseInterface{
+class MultiResponse extends ResponseAbstract{
 
 	/**
 	 * Fills self::$response_body and calls self::getInfo()
