@@ -91,7 +91,7 @@ class URL{
 	 * @param string $method
 	 * @param array  $body
 	 */
-	public function __construct($url, array $params = [], $method = 'GET', $body = []){
+	public function __construct($url, array $params = [], $method = 'GET', array $body = []){
 		$this->url    = $url;
 		$this->params = $params;
 		$this->body   = $body;
