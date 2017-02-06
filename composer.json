@@ -1,6 +1,6 @@
 {
 	"name": "chillerlan/php-curl",
-	"description": "A tiny cURL wrapper. PHP 5.6+, PHP 7",
+	"description": "A tiny cURL wrapper. PHP 7+",
 	"homepage": "https://github.com/codemasher/php-curl",
 	"license": "MIT",
 	"type": "library",
@@ -15,15 +15,12 @@
 		}
 	],
 	"require": {
-		"php": ">=5.6.0",
-		"vlucas/phpdotenv": "2.2.*"
+		"php": ">=7.0.7",
+		"vlucas/phpdotenv": "2.*"
 	},
 	"require-dev": {
 		"chillerlan/database": "dev-master",
-		"phpunit/phpunit": "5.2.*"
-	},
-	"suggest": {
-		"chillerlan/bbcode": "*"
+		"phpunit/phpunit": "5.7.*"
 	},
 	"autoload": {
 		"psr-4": {

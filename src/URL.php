@@ -1,5 +1,8 @@
 <?php
 /**
+ * Class URL
+ *
+ * (wtb new name - URL is misleading...)
  *
  * @filesource   URL.php
  * @created      18.02.2016
@@ -12,8 +15,6 @@
 namespace chillerlan\TinyCurl;
 
 /**
- * Class URL
- *
  * @property string url
  * @property string method
  * @property string scheme
@@ -24,9 +25,14 @@ namespace chillerlan\TinyCurl;
  * @property string fragment
  * @property array  params
  * @property array  parsedquery
- * @property array  body
+ * @property mixed  body
+ * @property array  headers
  */
 class URL{
+
+	const URL_PARTS       = ['scheme', 'host', 'port', 'path', 'query', 'fragment'];
+	const ALLOWED_SCHEMES = ['http', 'https'];
+	const ALLOWED_METHODS = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'];
 
 	/**
 	 * @var string
@@ -79,9 +85,14 @@ class URL{
 	protected $params = [];
 
 	/**
+	 * @var mixed
+	 */
+	protected $body;
+
+	/**
 	 * @var array
 	 */
-	protected $body = [];
+	protected $headers = [];
 
 	/**
 	 * URL constructor.
@@ -89,70 +100,35 @@ class URL{
 	 * @param string $url
 	 * @param array  $params
 	 * @param string $method
-	 * @param array  $body
-	 */
-	public function __construct($url, array $params = [], $method = 'GET', $body = null){
-		$this->url    = $url;
-		$this->params = $params;
-		$this->body   = $body;
-
-		$method = strtoupper($method);
-		if(in_array($method, ['GET', 'POST'], true)){ // @todo
-			$this->method = $method;
-		}
-
-		$this->parseUrl();
-	}
-
-	/**
-	 * @param $name
+	 * @param mixed  $body
+	 * @param array  $headers
 	 *
-	 * @return mixed
+	 * @throws \chillerlan\TinyCurl\URLException
 	 */
-	public function __get($name){
-		return $this->{$name};
-	}
+	public function __construct(string $url, array $params = [], string $method = 'GET', $body = null, array $headers = []){
+		$this->url     = $url;
+		$this->params  = $params;
+		$this->body    = $body;
+		$this->headers = $headers;
+		$this->method  = strtoupper($method);
 
-	/**
-	 * @return string URL with merged params
-	 */
-	public function __toString(){
-		return $this->mergeParams();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function originalParams(){
-		return $this->getURL().'?'.http_build_query($this->parsedquery);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function overrideParams(){
-		return $this->getURL().'?'.http_build_query($this->params);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function mergeParams(){
-		return $this->getURL().'?'.http_build_query(array_merge($this->parsedquery, $this->params));
-	}
-
-	/**
-	 * @return void
-	 */
-	protected function parseUrl(){
 		$url = parse_url($this->url);
 
-		$this->host      = !isset($url['host'])      ? null : $url['host'];
-		$this->port      = !isset($url['port'])      ? null : $url['port'];
-		$this->path      = !isset($url['path'])      ? null : $url['path'];
-		$this->scheme    = !isset($url['scheme'])    ? null : $url['scheme'];
-		$this->query     = !isset($url['query'])     ? null : $url['query'];
-		$this->fragment  = !isset($url['fragment'])  ? null : $url['fragment'];
+		foreach(self::URL_PARTS as $part){
+			$this->{$part} = !isset($url[$part]) ? null : $url[$part];
+		}
+
+		if($this->scheme && !in_array(strtolower($this->scheme), self::ALLOWED_SCHEMES)){
+			throw new URLException('invalid scheme: '.$this->scheme);
+		}
+
+		if(!$this->host){
+			throw new URLException('no host given');
+		}
+
+		if(!in_array($this->method, self::ALLOWED_METHODS, true)){
+			throw new URLException('invalid method: '.$this->method);
+		}
 
 		if($this->query){
 			parse_str($this->query, $this->parsedquery);
@@ -161,9 +137,53 @@ class URL{
 	}
 
 	/**
+	 * @param string $name
+	 *
+	 * @return mixed
+	 */
+	public function __get(string $name){
+
+		if(property_exists($this, $name)){
+			return $this->{$name};
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return string URL with merged params
+	 */
+	public function __toString():string{
+		return $this->mergeParams();
+	}
+
+	/**
 	 * @return string
 	 */
-	protected function getURL(){
+	public function originalParams():string{
+		return $this->getURL($this->parsedquery);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function overrideParams():string{
+		return $this->getURL($this->params);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function mergeParams():string{
+		return $this->getURL(array_merge($this->parsedquery, $this->params));
+	}
+
+	/**
+	 * @param array $params
+	 *
+	 * @return string
+	 */
+	protected function getURL(array $params):string{
 		$url = '';
 
 		if($this->scheme){
@@ -181,6 +201,14 @@ class URL{
 
 		if($this->path){
 			$url .= $this->path;
+		}
+
+		if(!empty($params)){
+			$url .= '?'.http_build_query($params);
+		}
+
+		if($this->fragment){
+			$url .= '#'.$this->fragment;
 		}
 
 		return $url;

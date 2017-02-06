@@ -1,6 +1,5 @@
 <?php
 /**
- *
  * @filesource   MultiRequestTest.php
  * @created      16.02.2016
  * @package      chillerlan\TinyCurlTest
@@ -11,9 +10,7 @@
 
 namespace chillerlan\TinyCurlTest;
 
-use chillerlan\TinyCurl\MultiRequest;
-use chillerlan\TinyCurl\MultiRequestOptions;
-use chillerlan\TinyCurl\URL;
+use chillerlan\TinyCurl\{MultiRequest, MultiRequestOptions, URL};
 use stdClass;
 
 class MultiRequestTest extends \PHPUnit_Framework_TestCase{
@@ -51,7 +48,7 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 			$this->assertEquals(200, $response->statuscode);
 			$this->assertEquals($response->content_length_header, $response->content_length_body);
 			$this->assertEquals('application/json; charset=utf-8', $response->content_type);
-			var_dump([$response->hash, $response->retry]);
+#			var_dump([$response->hash, $response->retry]);
 		}
 
 	}
@@ -74,12 +71,11 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 		$request = new MultiRequest($options);
 		$request->fetch([null, null, null, null, null, null, null,]);
-
 	}
 
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
-	 * @expectedExceptionMessage empty($urls)
+	 * @expectedExceptionMessage $urls is empty
 	 */
 	public function testFetchUrlEmptyException(){
 		(new MultiRequest)->fetch([]);
@@ -87,7 +83,7 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
-	 * @expectedExceptionMessage !$this->options->handler
+	 * @expectedExceptionMessage no handler set
 	 */
 	public function testSetHandlerExistsException(){
 		$options = new MultiRequestOptions;
@@ -98,7 +94,7 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 	/**
 	 * @expectedException \chillerlan\TinyCurl\RequestException
-	 * @expectedExceptionMessage !is_a($handler)
+	 * @expectedExceptionMessage handler is not a MultiResponseHandlerInterface
 	 */
 	public function testSetHandlerImplementsException(){
 		$options = new MultiRequestOptions;
@@ -106,6 +102,5 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 
 		new MultiRequest($options);
 	}
-
 
 }

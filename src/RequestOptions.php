@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class RequestOptions
  *
  * @filesource   RequestOptions.php
  * @created      15.02.2016
@@ -12,9 +13,19 @@
 namespace chillerlan\TinyCurl;
 
 /**
- * Class RequestOptions
+ *
  */
 class RequestOptions{
+
+	/**
+	 * @var string
+	 */
+	public $user_agent = 'chillerLAN-php-curl';
+
+	/**
+	 * @var int
+	 */
+	public $timeout = 10;
 
 	/**
 	 * options for each curl instance
@@ -24,18 +35,16 @@ class RequestOptions{
 	public $curl_options = [];
 
 	/**
-	 * whitelist too?
-	 *
-	 * @var array
-	 */
-	public $hostBlacklist = [];
-
-	/**
 	 * CA Root Certificates for use with CURL/SSL
 	 *
 	 * @var string
 	 * @link https://curl.haxx.se/ca/cacert.pem
 	 */
 	public $ca_info = null;
+
+	/**
+	 * @var int
+	 */
+	public $max_redirects = 0;
 
 }

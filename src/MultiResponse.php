@@ -10,10 +10,10 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl\Response;
+namespace chillerlan\TinyCurl;
 
 /**
- * 
+ *
  */
 class MultiResponse extends ResponseAbstract{
 

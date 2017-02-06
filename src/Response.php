@@ -10,7 +10,7 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl\Response;
+namespace chillerlan\TinyCurl;
 
 class Response extends ResponseAbstract{
 

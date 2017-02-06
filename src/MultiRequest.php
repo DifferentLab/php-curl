@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class MultiRequest
  *
  * @filesource   MultiRequest.php
  * @created      15.02.2016
@@ -11,13 +12,11 @@
 
 namespace chillerlan\TinyCurl;
 
-use chillerlan\TinyCurl\Response\MultiResponse;
-use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
-
 /**
- * Class MultiRequest
- *
  * @link http://www.onlineaspect.com/2009/01/26/how-to-use-curl_multi-without-blocking/
+ * @link https://github.com/joshfraser/rolling-curl
+ *
+ * (there are countless implementations around, just google for "php rolling curl")
  */
 class MultiRequest{
 
@@ -55,14 +54,14 @@ class MultiRequest{
 	protected $options;
 
 	/**
-	 * @var \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface
+	 * @var \chillerlan\TinyCurl\MultiResponseHandlerInterface
 	 */
 	protected $multiResponseHandler;
 
 	/**
 	 * MultiRequest constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions|null $options
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 */
 	public function __construct(MultiRequestOptions $options = null){
 		$this->setOptions($options ?: new MultiRequestOptions);
@@ -80,23 +79,49 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface|null $handler
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 *
-	 * @return $this
+	 * @return \chillerlan\TinyCurl\MultiRequest
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	public function setHandler(MultiResponseHandlerInterface $handler = null){
+	public function setOptions(MultiRequestOptions $options):MultiRequest {
+		$this->options = $options;
+
+		if($this->options->handler){
+			$this->setHandler();
+		}
+
+		$this->curl_options = $this->options->curl_options + [
+			CURLOPT_HEADER         => true,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_USERAGENT      => $this->options->user_agent,
+			CURLOPT_PROTOCOLS      => CURLPROTO_HTTP|CURLPROTO_HTTPS,
+			CURLOPT_SSL_VERIFYPEER => true,
+			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
+			CURLOPT_CAINFO         => is_file($this->options->ca_info) ? $this->options->ca_info : null,
+		];
+
+		return $this;
+	}
+
+	/**
+	 * @param \chillerlan\TinyCurl\MultiResponseHandlerInterface $handler
+	 *
+	 * @return \chillerlan\TinyCurl\MultiRequest
+	 * @throws \chillerlan\TinyCurl\RequestException
+	 */
+	public function setHandler(MultiResponseHandlerInterface $handler = null):MultiRequest {
 
 		if(!$handler){
 
 			if(!class_exists($this->options->handler)){
-				throw new RequestException('!$this->options->handler');
+				throw new RequestException('no handler set');
 			}
 
 			$handler = new $this->options->handler($this);
 
 			if(!is_a($handler, MultiResponseHandlerInterface::class)){
-				throw new RequestException('!is_a($handler)');
+				throw new RequestException('handler is not a MultiResponseHandlerInterface');
 			}
 
 		}
@@ -109,13 +134,13 @@ class MultiRequest{
 	/**
 	 * @param array $urls array of \chillerlan\TinyCurl\URL objects
 	 *
-	 * @return $this
+	 * @return void
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(array $urls){
 
 		if(empty($urls)){
-			throw new RequestException('empty($urls)');
+			throw new RequestException('$urls is empty');
 		}
 
 		$this->stack      = $urls;
@@ -127,59 +152,35 @@ class MultiRequest{
 		// shoot out the first batch of requests
 		array_map(function(){
 			$this->createHandle();
-			usleep(100);
+			usleep($this->options->sleep);
 		}, range(1, $this->options->window_size));
 
 		/// ...and start processing the stack
 		$this->processStack();
-
-		return $this;
 	}
 
 	/**
+	 * @see \chillerlan\TinyCurl\MultiResponseHandlerInterface
+	 *
 	 * @param mixed $response
 	 *
-	 * @see \chillerlan\TinyCurl\Response\MultiResponseHandlerInterface
-	 * @return $this
+	 * @return void
 	 */
 	public function addResponse($response){
 		$this->responses[] = $response;
-
-		return $this;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getResponseData(){
+	public function getResponseData():array {
 		return $this->responses;
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
-	 *
-	 * @throws \chillerlan\TinyCurl\RequestException
-	 */
-	public function setOptions(MultiRequestOptions $options){
-		$this->options = $options;
-
-		if($this->options->handler){
-			$this->setHandler();
-		}
-
-		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
-
-		$this->curl_options = $this->options->curl_options + [
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
-				CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
-				CURLOPT_CAINFO         => $ca_info,
-				CURLOPT_HEADER         => true,
-			];
-	}
-
-	/**
 	 * creates a new cURL handle
+	 *
+	 * @return void
 	 */
 	protected function createHandle(){
 
@@ -187,7 +188,7 @@ class MultiRequest{
 			$url = array_shift($this->stack);
 
 			if($url instanceof URL){
-				$curl = curl_init($url);
+				$curl = curl_init($url->mergeParams());
 				curl_setopt_array($curl, $this->curl_options);
 				curl_multi_add_handle($this->curl_multi, $curl);
 			}
@@ -202,6 +203,8 @@ class MultiRequest{
 
 	/**
 	 * processes the requests
+	 *
+	 * @return void
 	 */
 	protected function processStack(){
 

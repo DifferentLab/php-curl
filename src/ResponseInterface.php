@@ -1,5 +1,6 @@
 <?php
 /**
+ * Interface ResponseInterface
  *
  * @filesource   ResponseInterface.php
  * @created      15.02.2016
@@ -8,7 +9,7 @@
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl\Response;
+namespace chillerlan\TinyCurl;
 
 /**
  * @property mixed body
@@ -23,7 +24,7 @@ interface ResponseInterface{
 	 * @param string $property
 	 *
 	 * @return mixed
-	 * @throws \chillerlan\TinyCurl\Response\ResponseException
+	 * @throws \chillerlan\TinyCurl\ResponseException
 	 */
 	public function __get($property);
 

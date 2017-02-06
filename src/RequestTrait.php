@@ -1,22 +1,19 @@
 <?php
 /**
+ * Trait RequestTrait
  *
  * @filesource   RequestTrait.php
  * @created      13.02.2016
- * @package      chillerlan\TinyCurl\Traits
+ * @package      chillerlan\TinyCurl
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2016 Smiley
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl\Traits;
-
-use chillerlan\TinyCurl\Request;
-use chillerlan\TinyCurl\RequestOptions;
-use chillerlan\TinyCurl\URL;
+namespace chillerlan\TinyCurl;
 
 /**
- * Trait RequestTrait
+ *
  */
 trait RequestTrait{
 
@@ -35,7 +32,7 @@ trait RequestTrait{
 	 * @param array  $params
 	 * @param array  $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response\Response
+	 * @return \chillerlan\TinyCurl\Response
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	protected function fetch($url, array $params = [], array $curl_options = []){

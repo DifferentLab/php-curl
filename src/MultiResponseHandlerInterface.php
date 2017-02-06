@@ -4,13 +4,13 @@
  *
  * @filesource   MultiResponseHandlerInterface.php
  * @created      16.02.2016
- * @package      chillerlan\TinyCurl\Response
+ * @package      chillerlan\TinyCurl
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2016 Smiley
  * @license      MIT
  */
 
-namespace chillerlan\TinyCurl\Response;
+namespace chillerlan\TinyCurl;
 
 /**
  *
@@ -27,10 +27,10 @@ interface MultiResponseHandlerInterface{
 	 *
 	 * This method may return void or an URL object as a replacement for a failed request,
 	 * which then will be re-added to the running queue.
-	 * 
+	 *
 	 * However, the return value will not be checked, so make sure you return valid URLs. ;)
 	 *
-	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
+	 * @param \chillerlan\TinyCurl\ResponseInterface $response
 	 *
 	 * @return void|\chillerlan\TinyCurl\URL
 	 * @internal

@@ -12,8 +12,6 @@
 
 namespace chillerlan\TinyCurl;
 
-use chillerlan\TinyCurl\Response\Response;
-
 /**
  *
  */
@@ -34,7 +32,7 @@ class Request{
 	/**
 	 * Request constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\RequestOptions|null $options
+	 * @param \chillerlan\TinyCurl\RequestOptions $options
 	 */
 	public function __construct(RequestOptions $options = null){
 		$this->setOptions($options ?: new RequestOptions);
@@ -42,17 +40,21 @@ class Request{
 
 	/**
 	 * @param \chillerlan\TinyCurl\RequestOptions $options
+	 *
+	 * @return \chillerlan\TinyCurl\Request
 	 */
-	public function setOptions(RequestOptions $options){
+	public function setOptions(RequestOptions $options):Request {
 		$this->options = $options;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $url
 	 *
-	 * @return \chillerlan\TinyCurl\Response\Response
+	 * @return \chillerlan\TinyCurl\Response
 	 */
-	protected function getResponse($url){
+	protected function getResponse(string $url):Response {
 		curl_setopt($this->curl, CURLOPT_URL, $url);
 
 		return new Response($this->curl);
@@ -64,56 +66,99 @@ class Request{
 	protected function initCurl(){
 		$this->curl = curl_init();
 
-		$ca_info = is_file($this->options->ca_info) ? $this->options->ca_info : null;
-
-		// set defaults
 		curl_setopt_array($this->curl, [
-			CURLOPT_PROTOCOLS => CURLPROTO_HTTP|CURLPROTO_HTTPS|CURLPROTO_FTP|CURLPROTO_FTPS,
+			CURLOPT_HEADER         => false,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => (bool)$ca_info,
+			CURLOPT_USERAGENT      => $this->options->user_agent,
+			CURLOPT_PROTOCOLS      => CURLPROTO_HTTP|CURLPROTO_HTTPS,
+			CURLOPT_SSL_VERIFYPEER => true,
 			CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1 removed in cURL 7.28.1
-			CURLOPT_CAINFO         => $ca_info,
+			CURLOPT_CAINFO         => is_file($this->options->ca_info) ? $this->options->ca_info : null,
+			CURLOPT_TIMEOUT        => $this->options->timeout,
 		]);
 
-		// set the global request options
 		curl_setopt_array($this->curl, $this->options->curl_options);
 	}
+
 	/**
 	 * @param \chillerlan\TinyCurl\URL $url
 	 * @param array                    $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response\Response
+	 * @return \chillerlan\TinyCurl\Response
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	public function fetch(URL $url, array $curl_options = []){
-
-		if(!$url->host || !in_array($url->scheme, ['http', 'https', 'ftp', 'ftps'], true)){
-			throw new RequestException('$url');
-		}
-
+	public function fetch(URL $url, array $curl_options = []):Response {
 		$this->initCurl();
 
-		switch($url->method){
-			case 'GET':
-				break;
-			case 'POST':
-				curl_setopt_array($this->curl, [
-					CURLOPT_POST        => true,
-					/*
-					 * "Passing an array to CURLOPT_POSTFIELDS will encode the data as multipart/form-data,
-					 *  while passing a URL-encoded string will encode the data as application/x-www-form-urlencoded."
-					 * - PHP manual
-					 */
-					CURLOPT_POSTFIELDS  => $url->body,
-				]);
+		$headers = $this->normalizeHeaders($url->headers);
 
-				break;
+		if(in_array($url->method, ['POST', 'PUT'])){
+
+			$curl_options += $url->method === 'PUT'
+				? [CURLOPT_CUSTOMREQUEST => 'PUT']
+				: [CURLOPT_POST => true];
+
+			if(!isset($headers['Content-type']) && $url->method === 'POST' && is_array($url->body)){
+				$headers += ['Content-type: application/x-www-form-urlencoded'];
+				$body     = http_build_query($url->body, '', '&', PHP_QUERY_RFC1738);
+			}
+			else{
+				$body = $url->body;
+			}
+
+			$curl_options += [CURLOPT_POSTFIELDS => $body];
+		}
+		else{
+			$curl_options += [CURLOPT_CUSTOMREQUEST => $url->method];
 		}
 
-		// set per-request options
+		$headers += [
+			'Host: '.$url->host,
+			'Connection: close',
+		];
+
+		if($this->options->max_redirects > 0){
+			$curl_options += [
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_MAXREDIRS      => $this->options->max_redirects,
+			];
+		}
+
+		$curl_options += [CURLOPT_HTTPHEADER => $headers];
+
 		curl_setopt_array($this->curl, $curl_options);
 
 		return $this->getResponse((string)$url);
+	}
+
+	/**
+	 * @param array $headers
+	 *
+	 * @return array
+	 */
+	public function normalizeHeaders(array $headers):array {
+		$normalized_headers = [];
+
+		foreach($headers as $key => $val){
+
+			if(is_numeric($key)){
+				$header = explode(':', $val, 2);
+
+				if(count($header) === 2){
+					$key = $header[0];
+					$val = $header[1];
+				}
+				else{
+					continue;
+				}
+			}
+
+			$key = ucfirst(strtolower($key));
+
+			$normalized_headers[$key] = trim($key).': '.trim($val);
+		}
+
+		return $normalized_headers;
 	}
 
 	/**
@@ -121,7 +166,7 @@ class Request{
 	 *
 	 * @return array<string>
 	 */
-	public function extractShortUrl($url){
+	public function extractShortUrl(string $url):array {
 		$urls = [$url];
 
 		while($url = $this->extract($url)){
@@ -137,7 +182,7 @@ class Request{
 	 * @return string
 	 * @link http://www.internoetics.com/2012/11/12/resolve-short-urls-to-their-destination-url-php-api/
 	 */
-	protected function extract($url){
+	protected function extract(string $url):string {
 		$this->initCurl();
 
 		curl_setopt_array($this->curl, [

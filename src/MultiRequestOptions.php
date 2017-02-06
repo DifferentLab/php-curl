@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class MultiRequestOptions
  *
  * @filesource   MultiRequestOptions.php
  * @created      15.02.2016
@@ -12,7 +13,7 @@
 namespace chillerlan\TinyCurl;
 
 /**
- * Class MultiRequestOptions
+ *
  */
 class MultiRequestOptions extends RequestOptions{
 
@@ -31,10 +32,10 @@ class MultiRequestOptions extends RequestOptions{
 	public $window_size = 5;
 
 	/**
-	 * wtb timeout
+	 * sleep timer (milliseconds) between each fired request on startup
 	 *
 	 * @var int
 	 */
-	public $timeout = 10;
+	public $sleep = 100;
 
 }

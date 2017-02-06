@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class ItemMultiResponseHandler
  *
  * @filesource   ItemMultiResponseHandler.php
  * @created      16.02.2016
@@ -11,33 +12,28 @@
 
 namespace Example\GW2API;
 
-use chillerlan\Database\Traits\DatabaseTrait;
 use chillerlan\Database\DBOptions;
-use chillerlan\TinyCurl\MultiRequest;
-use chillerlan\TinyCurl\MultiRequestOptions;
-use chillerlan\TinyCurl\Request;
-use chillerlan\TinyCurl\Response\MultiResponseHandlerInterface;
-use chillerlan\TinyCurl\Response\ResponseInterface;
-use chillerlan\TinyCurl\URL;
+use chillerlan\Database\Drivers\MySQLi\MySQLiDriver;
+use chillerlan\TinyCurl\{
+	MultiRequest, MultiRequestOptions, MultiResponseHandlerInterface, Request, RequestTrait, ResponseInterface, URL
+};
 use Dotenv\Dotenv;
 use Exception;
 
-/**
- * Class ItemMultiResponseHandler
- */
 class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
-	use DatabaseTrait;
+	use RequestTrait;
 
 	/**
 	 * class options
 	 * play around with chunksize and concurrent requests to get best performance results
 	 */
-	const CONCURRENT    = 10;
+	const CONCURRENT    = 50;
 	const CHUNK_SIZE    = 200;
 	const API_LANGUAGES = ['de', 'en', 'es', 'fr', 'zh'];
 	const CACERT        = __DIR__.'/../../tests/test-cacert.pem';
-	const TEMP_TABLE    = 'gw2_items_temp';
+	const TEMP_TABLE    = 'gw2_items_test';
 	const API_BASE      = 'https://api.guildwars2.com/v2/items';
+	// make sure you copied the .env_example to .env and set the correct values!
 	const CONFIGDIR     = __DIR__.'/../../config';
 
 	/**
@@ -46,9 +42,9 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected $multiRequest;
 
 	/**
-	 * @var \Example\GW2API\GW2MySQLiDriver
+	 * @var \chillerlan\Database\Drivers\MySQLi\MySQLiDriver
 	 */
-	protected $GW2MySQLiDriver;
+	protected $MySQLiDriver;
 
 	/**
 	 * @var array
@@ -83,7 +79,8 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			'password' => getenv('DB_MYSQLI_PASSWORD'),
 		]);
 
-		$this->GW2MySQLiDriver = $this->dbconnect(GW2MySQLiDriver::class, $dbOptions);
+		$this->MySQLiDriver = new MySQLiDriver($dbOptions);
+		$this->MySQLiDriver->connect();
 	}
 
 	/**
@@ -107,8 +104,6 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		$this->callback = 0;
 		$request->fetch($this->urls);
 		$this->logToCLI('MultiRequest::fetch() finished');
-
-#		var_dump($this->mySQLiDriver->raw('select * from '.self::TEMP_TABLE));
 	}
 
 	/**
@@ -124,7 +119,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 *
 	 * However, the return value will not be checked, so make sure you return valid URLs. ;)
 	 *
-	 * @param \chillerlan\TinyCurl\Response\ResponseInterface $response
+	 * @param \chillerlan\TinyCurl\ResponseInterface $response
 	 *
 	 * @return bool|\chillerlan\TinyCurl\URL
 	 * @internal
@@ -148,7 +143,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 
 			// insert the data as soon as we receive it
 			// this will result in a couple more database writes but won't block the responses much
-			$query = $this->GW2MySQLiDriver->multi_callback(
+			$query = $this->MySQLiDriver->multi_callback(
 				'UPDATE '.self::TEMP_TABLE.' SET `'.$lang.'` = ? WHERE `id` = ?',
 				$response->json,
 				function($item){
@@ -188,7 +183,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 *
 	 * @param $str
 	 */
-	protected function logToCLI($str){
+	protected function logToCLI(string $str){
 		echo '['.date('c', time()).']'.sprintf('[%10ss] ', sprintf('%01.4f', microtime(true) - $this->starttime)).$str.PHP_EOL;
 	}
 
@@ -197,7 +192,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	 */
 	protected function createTempTable(){
 
-		$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
+		$sql = 'CREATE  TABLE IF NOT EXISTS `'.self::TEMP_TABLE.'` ('
 		       .'`id` int(10) unsigned NOT NULL, '
 		       .implode(' text NOT NULL, ', array_map(function($lang){
 					return '`'.$lang.'`';
@@ -206,8 +201,8 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		       .' `response_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,'
 		       .' PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin';
 
-		$this->GW2MySQLiDriver->raw('DROP TEMPORARY TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
-		$this->GW2MySQLiDriver->raw($sql);
+		$this->MySQLiDriver->raw('DROP  TABLE IF EXISTS `'.self::TEMP_TABLE.'`');
+		$this->MySQLiDriver->raw($sql);
 	}
 
 	/**
@@ -216,8 +211,10 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 	protected function getURLs(){
 		$this->starttime = microtime(true);
 		$this->logToCLI(__METHOD__.' start');
+		$this->setRequestCA(self::CACERT);
 
-		$response = (new Request)->fetch(new URL('https://api.guildwars2.com/v2/items'));
+		// fetch the current item ids
+		$response = $this->fetch(new URL('https://api.guildwars2.com/v2/items'));
 
 		if($response->info->http_code !== 200){
 			throw new Exception('failed to get /v2/items');
@@ -226,7 +223,8 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 		$json = $response->json;
 		$this->logToCLI(__METHOD__.' json');
 
-		$this->GW2MySQLiDriver->multi_callback(
+		// insert an empty line in the database for each item
+		$this->MySQLiDriver->multi_callback(
 			'INSERT IGNORE INTO '.self::TEMP_TABLE.' (`id`) VALUES (?)',
 			$json,
 			function ($item){
@@ -234,6 +232,7 @@ class ItemMultiResponseHandler implements MultiResponseHandlerInterface{
 			}
 		);
 
+		// create a huge array of URL objects - 200 items per request for each language (-> ca 1400 requests)
 		array_map(function($chunk){
 			foreach(self::API_LANGUAGES as $lang){
 				$this->urls[] = new URL(self::API_BASE.'?lang='.$lang.'&ids='.implode(',', $chunk));

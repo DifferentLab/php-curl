@@ -1,8 +1,7 @@
 <?php
 /**
- *
  * @filesource   RequestTest.php
- * @created      13.02.2016
+ * @created      04.02.2017
  * @package      chillerlan\TinyCurlTest
  * @author       Smiley <smiley@chillerlan.net>
  * @copyright    2016 Smiley
@@ -11,118 +10,110 @@
 
 namespace chillerlan\TinyCurlTest;
 
-use chillerlan\TinyCurl\Request;
-use chillerlan\TinyCurl\RequestOptions;
-use chillerlan\TinyCurl\Response\Response;
-use chillerlan\TinyCurl\URL;
-use stdClass;
+use chillerlan\TinyCurl\{Request, RequestOptions, Response, URL};
 
 class RequestTest extends \PHPUnit_Framework_TestCase{
 
-	const GW2_APIKEY = '39519066-20B0-5545-9AE2-71109410A2CAF66348DA-50F7-4ACE-9363-B38FD8EE1881';
-	const GW2_ACC_ID = 'A9EAD53E-4157-E111-BBF3-78E7D1936222';
-	const GW2_GUILD  = '75FD83CF-0C45-4834-BC4C-097F93A487AF';
-	const GW2_CHARS  = 'Skin Receiver';
+	const CAPATH  = __DIR__.'/test-cacert.pem';
+	const HTTPBIN = 'https://httpbin.org';
 
 	/**
 	 * @var \chillerlan\TinyCurl\Request
 	 */
-	protected $requestWithCA;
+	protected $request;
 
 	/**
-	 * @var \chillerlan\TinyCurl\Request
+	 * @var \chillerlan\TinyCurl\RequestOptions
 	 */
-	protected $requestNoCA;
-
-	/**
-	 * @var \chillerlan\TinyCurl\Response\ResponseInterface
-	 */
-	protected $response;
+	protected $options;
 
 	protected function setUp(){
+		$this->options = new RequestOptions;
+		$this->options->ca_info = self::CAPATH;
 
-		$co = [
-			CURLOPT_HTTPHEADER => ['Authorization: Bearer '.self::GW2_APIKEY]
-		];
-
-		$o1 = new RequestOptions;
-		$o1->curl_options = $co;
-		$o1->ca_info = __DIR__.'/test-cacert.pem';
-		$this->requestWithCA = new Request($o1);
-
-		$o2 = new RequestOptions;
-		$o2->curl_options = $co;
-		$this->requestNoCA = new Request($o2);
+		$this->request = new Request($this->options);
 	}
 
 	public function testInstanceWithoutArgsCoverage(){
-		$this->assertInstanceOf(Request::class, new Request); // HA HA.
+		$this->assertInstanceOf(Request::class, $this->request);
+	}
+
+	public function testNormalizeHeaders(){
+		$headers = [
+			'Content-Type' => 'application/x-www-form-urlencoded',
+			'Content-Type: application/x-www-form-urlencoded',
+		    'what',
+		];
+
+		$this->assertSame(['Content-type' => 'Content-type: application/x-www-form-urlencoded'], $this->request->normalizeHeaders($headers));
 	}
 
 	public function fetchDataProvider(){
 		return [
-			['https://api.guildwars2.com/v2/account', []],
-			['https://api.guildwars2.com/v2/account?lang=de', []],
-			['https://api.guildwars2.com/v2/account?lang=de', ['lang' => 'fr']],
+			['get',    []],
+			['post',   []],
+			['post',   ['Content-type' => 'multipart/form-data']],
+			['put',    []],
+			['delete', []],
 		];
 	}
 
 	/**
 	 * @dataProvider fetchDataProvider
 	 */
-	public function testFetchWithCA($url, array $params){
-		$response = $this->requestWithCA->fetch(new URL($url, $params));
-		$this->assertApiResponse($response);
+	public function testFetch($method, $extra_headers){
+		$url = new URL(self::HTTPBIN.'/'.$method, ['foo' => 'bar'], $method, ['huh' => 'wtf'], ['what' => 'nope'] + $extra_headers);
+
+		$response = $this->request->fetch($url)->json;
+
+		$this->assertSame(self::HTTPBIN.'/'.$method.'?foo=bar', $response->url);
+		$this->assertSame('bar', $response->args->foo);
+		$this->assertSame('nope', $response->headers->What);
+
+		if(in_array($method, ['post', 'put'])){
+			$this->assertSame('wtf', $response->form->huh);
+
+			if(!empty($extra_headers)){
+				$this->assertContains('multipart/form-data; boundary=', $response->headers->{'Content-Type'});
+			}
+		}
 	}
 
 	/**
-	 * @dataProvider fetchDataProvider
+	 * coverage
 	 */
-	public function testFetchNoCA($url, array $params){
-		$response = $this->requestNoCA->fetch(new URL($url, $params));
-		$this->assertApiResponse($response);
-	}
+	public function testRequestOptions(){
+		$this->options = new RequestOptions;
 
+		$this->options->ca_info = self::CAPATH;
+		$this->options->user_agent = 'foobar';
+		$this->options->max_redirects = 1;
+		$this->options->timeout = 1;
 
-	protected function assertApiResponse($response){
-		$this->assertEquals(0, $response->error->code);
-		$this->assertEquals(200, $response->info->http_code);
-		$this->assertEquals('*', $response->headers->{'access-control-allow-origin'});
-		$this->assertEquals(self::GW2_ACC_ID, $response->json->id);
-		$this->assertEquals(self::GW2_ACC_ID, $response->json_array['id']);
-		$this->assertEquals('application/json; charset=utf-8', $response->body->content_type);
+		(new Request($this->options))->fetch(new URL(self::HTTPBIN.'/get'));
 	}
 
 	/**
-	 * @expectedException \chillerlan\TinyCurl\RequestException
-	 * @expectedExceptionMessage $url
+	 * coverage
 	 */
-	public function testFetchUrlSchemeException(){
-		$this->requestWithCA->fetch(new URL('htps://whatever.wat'));
+	public function testResponse(){
+		$response = $this->request->fetch(new URL(self::HTTPBIN.'/get?foo=bar'));
+
+		$this->assertSame('application/json', $response->body->content_type);
+		$this->assertSame(self::HTTPBIN.'/get?foo=bar', $response->info->url);
+		$this->assertSame('bar', $response->json->args->foo);
+		$this->assertSame('bar', $response->json_array['args']['foo']);
+		$this->assertSame(0, $response->error->code);
+		$this->assertSame('application/json', $response->headers->{'content-type'});
+
+		$this->assertSame(false, $response->foo);
 	}
 
 	/**
-	 * @expectedException \chillerlan\TinyCurl\Response\ResponseException
-	 * @expectedExceptionMessage $curl
+	 * @expectedException \chillerlan\TinyCurl\ResponseException
+	 * @expectedExceptionMessage no cURL handle given
 	 */
-	public function testResponseNoCurlException(){
-		$this->response = new Response(null);
-	}
-
-	/**
-	 * @expectedException \chillerlan\TinyCurl\Response\ResponseException
-	 * @expectedExceptionMessage !$property: foobar
-	 */
-	public function testResponseGetMagicFieldException(){
-		$this->requestWithCA->fetch(new URL('https://api.guildwars2.com/v2/build'))->foobar;
-	}
-
-	public function testURLcoverage(){
-		$url = new URL('https://api.guildwars2.com:443/v2/items?lang=de&ids=all', ['lang' => 'fr']);
-
-		$this->assertEquals((string)$url, $url->mergeParams());
-		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=de&ids=all', $url->originalParams());
-		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr&ids=all', $url->mergeParams());
-		$this->assertEquals('https://api.guildwars2.com:443/v2/items?lang=fr', $url->overrideParams());
+	public function testResponseCurlException(){
+		new Response(null);
 	}
 }
