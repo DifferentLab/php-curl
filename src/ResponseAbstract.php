@@ -58,7 +58,7 @@ abstract class ResponseAbstract implements ResponseInterface{
 	 */
 	public function __construct($curl){
 
-		if(!$curl){
+		if(!is_resource($curl)){
 			throw new ResponseException('no cURL handle given');
 		}
 
@@ -68,15 +68,6 @@ abstract class ResponseAbstract implements ResponseInterface{
 		$this->response_headers = new stdClass;
 
 		$this->exec();
-	}
-
-	/**
-	 * Farewell.
-	 */
-	public function __destruct(){
-		if($this->curl){
-			curl_close($this->curl);
-		}
 	}
 
 	/**

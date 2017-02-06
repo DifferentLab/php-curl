@@ -210,9 +210,10 @@ class MultiRequest{
 
 		do{
 
-			if(curl_multi_exec($this->curl_multi, $active) !== CURLM_OK){
-				break; // @codeCoverageIgnore
+			do {
+				$status = curl_multi_exec($this->curl_multi, $active);
 			}
+			while($status === CURLM_CALL_MULTI_PERFORM);
 
 			// welcome to callback hell.
 			while($state = curl_multi_info_read($this->curl_multi)){
@@ -222,8 +223,9 @@ class MultiRequest{
 					$this->stack[] = $url;
 				}
 
-				$this->createHandle();
 				curl_multi_remove_handle($this->curl_multi, $state['handle']);
+				curl_close($state['handle']);
+				$this->createHandle();
 			}
 
 			if($active){
@@ -231,7 +233,7 @@ class MultiRequest{
 			}
 
 		}
-		while($active);
+		while($active && $status === CURLM_OK);
 
 	}
 

@@ -23,4 +23,16 @@ class Response extends ResponseAbstract{
 		$this->getInfo();
 	}
 
+	/**
+	 * Farewell.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function __destruct(){
+		if(is_resource($this->curl)){
+			curl_close($this->curl);
+		}
+	}
+
+
 }
