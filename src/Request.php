@@ -52,9 +52,9 @@ class Request{
 	/**
 	 * @param string $url
 	 *
-	 * @return \chillerlan\TinyCurl\Response
+	 * @return \chillerlan\TinyCurl\ResponseInterface
 	 */
-	protected function getResponse(string $url):Response {
+	protected function getResponse(string $url):ResponseInterface {
 		curl_setopt($this->curl, CURLOPT_URL, $url);
 
 		return new Response($this->curl);
@@ -84,10 +84,10 @@ class Request{
 	 * @param \chillerlan\TinyCurl\URL $url
 	 * @param array                    $curl_options
 	 *
-	 * @return \chillerlan\TinyCurl\Response
+	 * @return \chillerlan\TinyCurl\ResponseInterface
 	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
-	public function fetch(URL $url, array $curl_options = []):Response {
+	public function fetch(URL $url, array $curl_options = []):ResponseInterface {
 		$this->initCurl();
 
 		$headers = $this->normalizeHeaders($url->headers);
