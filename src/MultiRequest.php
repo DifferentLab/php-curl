@@ -194,7 +194,7 @@ class MultiRequest{
 			}
 			else{
 				// retry on next if we don't get what we expect
-				$this->createHandle();
+				$this->createHandle(); // @codeCoverageIgnore
 			}
 
 		}
