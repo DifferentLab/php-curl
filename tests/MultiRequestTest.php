@@ -11,9 +11,17 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\{MultiRequest, MultiRequestOptions, URL};
-use stdClass;
+use PHPUnit\Framework\TestCase;
 
-class MultiRequestTest extends \PHPUnit_Framework_TestCase{
+class MultiRequestTest extends TestCase{
+
+	protected $options;
+
+	protected function setUp(){
+		$this->options = new MultiRequestOptions;
+		$this->options->handler     = MultiResponseHandlerTest::class;
+		$this->options->ca_info     = __DIR__.'/test-cacert.pem';
+	}
 
 	protected function getURLs(){
 
@@ -34,12 +42,9 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 	}
 
 	public function testMultiResponseHandler(){
-		$options = new MultiRequestOptions;
-		$options->handler     = MultiResponseHandlerTest::class;
-		$options->ca_info     = __DIR__.'/test-cacert.pem';
-		$options->window_size = 3;
+		$this->options->window_size = 3;
 
-		$request = new MultiRequest($options);
+		$request = new MultiRequest($this->options);
 		$request->fetch($this->getURLs());
 
 		foreach($request->getResponseData() as $response){
@@ -54,23 +59,19 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 	}
 
 	public function testWindowSize(){
-		$options = new MultiRequestOptions;
-		$options->handler     = MultiResponseHandlerTest::class;
-		$options->ca_info     = __DIR__.'/test-cacert.pem';
-		$options->window_size = 30;
+		$this->options->window_size = 30;
 
-		$request = new MultiRequest($options);
+		$request = new MultiRequest($this->options);
 		$request->fetch($this->getURLs());
+		$this->markTestSkipped('code coverage');
 	}
 
 	public function testCreateHandleCoverage(){
-		$options = new MultiRequestOptions;
-		$options->handler     = MultiResponseHandlerTest::class;
-		$options->ca_info     = __DIR__.'/test-cacert.pem';
-		$options->window_size = 3;
+		$this->options->window_size = 3;
 
-		$request = new MultiRequest($options);
+		$request = new MultiRequest($this->options);
 		$request->fetch([null, null, null, null, null, null, null,]);
+		$this->markTestSkipped('code coverage');
 	}
 
 	/**
@@ -86,10 +87,9 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 	 * @expectedExceptionMessage no handler set
 	 */
 	public function testSetHandlerExistsException(){
-		$options = new MultiRequestOptions;
-		$options->handler     = 'foobar';
+		$this->options->handler = 'foobar';
 
-		new MultiRequest($options);
+		new MultiRequest($this->options);
 	}
 
 	/**
@@ -97,10 +97,9 @@ class MultiRequestTest extends \PHPUnit_Framework_TestCase{
 	 * @expectedExceptionMessage handler is not a MultiResponseHandlerInterface
 	 */
 	public function testSetHandlerImplementsException(){
-		$options = new MultiRequestOptions;
-		$options->handler     = stdClass::class;
+		$this->options->handler = \stdClass::class;
 
-		new MultiRequest($options);
+		new MultiRequest($this->options);
 	}
 
 }

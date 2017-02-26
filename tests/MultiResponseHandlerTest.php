@@ -13,7 +13,6 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\{MultiRequest, MultiResponseHandlerInterface, ResponseInterface, URL};
-use stdClass;
 
 /**
  *
@@ -41,7 +40,7 @@ class MultiResponseHandlerTest implements MultiResponseHandlerInterface{
 	 */
 	public function handleResponse(ResponseInterface $response){
 
-		$data = new stdClass;
+		$data = new \stdClass;
 
 		$data->errorcode             = $response->error->code;
 		$data->statuscode            = $response->info->http_code;

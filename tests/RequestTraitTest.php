@@ -10,8 +10,9 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\RequestTrait;
+use PHPUnit\Framework\TestCase;
 
-class RequestTraitTest extends \PHPUnit_Framework_TestCase{
+class RequestTraitTest extends TestCase{
 	use RequestTrait;
 
 	protected function setUp(){
@@ -19,6 +20,9 @@ class RequestTraitTest extends \PHPUnit_Framework_TestCase{
 	}
 
 	public function testFetchCoverage(){
-		$this->fetch('https://httpbin.org/get');
+		$url = 'https://httpbin.org/get';
+		$response = $this->fetch($url);
+
+		$this->assertSame($url, $response->json->url);
 	}
 }

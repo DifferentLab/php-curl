@@ -11,8 +11,9 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\URL;
+use PHPUnit\Framework\TestCase;
 
-class URLTest extends \PHPUnit_Framework_TestCase{
+class URLTest extends TestCase{
 
 	/**
 	 * @var \chillerlan\TinyCurl\URL

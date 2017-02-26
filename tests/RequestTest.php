@@ -11,8 +11,9 @@
 namespace chillerlan\TinyCurlTest;
 
 use chillerlan\TinyCurl\{Request, RequestOptions, Response, URL};
+use PHPUnit\Framework\TestCase;
 
-class RequestTest extends \PHPUnit_Framework_TestCase{
+class RequestTest extends TestCase{
 
 	const CAPATH  = __DIR__.'/test-cacert.pem';
 	const HTTPBIN = 'https://httpbin.org';
@@ -88,9 +89,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase{
 		$this->options->ca_info = self::CAPATH;
 		$this->options->user_agent = 'foobar';
 		$this->options->max_redirects = 1;
-		$this->options->timeout = 1;
+		$this->options->timeout = 10;
 
-		(new Request($this->options))->fetch(new URL(self::HTTPBIN.'/get'));
+		$response = (new Request($this->options))->fetch(new URL(self::HTTPBIN.'/get'));
+
+		$this->assertSame($this->options->user_agent, $response->json->headers->{'User-Agent'});
 	}
 
 	/**
