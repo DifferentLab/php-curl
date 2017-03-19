@@ -13,7 +13,7 @@ namespace chillerlan\TinyCurlTest;
 use chillerlan\TinyCurl\{MultiRequest, MultiRequestOptions, URL};
 use PHPUnit\Framework\TestCase;
 
-class MultiRequestTest extends TestCase{
+abstract class MultiRequestTest extends TestCase{
 
 	protected $options;
 
