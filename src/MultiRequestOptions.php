@@ -34,8 +34,8 @@ class MultiRequestOptions extends RequestOptions{
 	/**
 	 * sleep timer (milliseconds) between each fired request on startup
 	 *
-	 * @var int
+	 * @var int|float
 	 */
-	public $sleep = 100;
+	public $sleep = null;
 
 }

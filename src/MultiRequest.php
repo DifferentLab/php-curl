@@ -152,7 +152,6 @@ class MultiRequest{
 		// shoot out the first batch of requests
 		array_map(function(){
 			$this->createHandle();
-			usleep($this->options->sleep);
 		}, range(1, $this->options->window_size));
 
 		/// ...and start processing the stack
@@ -189,8 +188,14 @@ class MultiRequest{
 
 			if($url instanceof URL){
 				$curl = curl_init($url->mergeParams());
+
 				curl_setopt_array($curl, $this->curl_options);
 				curl_multi_add_handle($this->curl_multi, $curl);
+
+				if($this->options->sleep){
+					usleep($this->options->sleep);
+				}
+
 			}
 			else{
 				// retry on next if we don't get what we expect
