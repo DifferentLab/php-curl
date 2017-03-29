@@ -29,8 +29,7 @@ class RequestTest extends TestCase{
 	protected $options;
 
 	protected function setUp(){
-		$this->options = new RequestOptions;
-		$this->options->ca_info = self::CAPATH;
+		$this->options = new RequestOptions(['ca_info' => self::CAPATH]);
 
 		$this->request = new Request($this->options);
 	}
@@ -84,16 +83,19 @@ class RequestTest extends TestCase{
 	 * coverage
 	 */
 	public function testRequestOptions(){
-		$this->options = new RequestOptions;
+		$this->options = new RequestOptions([
+			'ca_info'       => self::CAPATH,
+			'max_redirects' => 1,
+			'timeout'       => 10,
+		]);
 
-		$this->options->ca_info = self::CAPATH;
 		$this->options->user_agent = 'foobar';
-		$this->options->max_redirects = 1;
-		$this->options->timeout = 10;
 
-		$response = (new Request($this->options))->fetch(new URL(self::HTTPBIN.'/get'));
+		$this->request = new Request($this->options);
 
-		$this->assertSame($this->options->user_agent, $response->json->headers->{'User-Agent'});
+		$response = $this->request->fetch(new URL(self::HTTPBIN.'/get'));
+
+		$this->assertSame($this->request->getOptions()->user_agent, $response->json->headers->{'User-Agent'});
 	}
 
 	/**

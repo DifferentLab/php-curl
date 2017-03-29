@@ -50,6 +50,13 @@ class Request{
 	}
 
 	/**
+	 * @return \chillerlan\TinyCurl\RequestOptions
+	 */
+	public function getOptions():RequestOptions{
+		return $this->options;
+	}
+
+	/**
 	 * @param string $url
 	 *
 	 * @return \chillerlan\TinyCurl\ResponseInterface
