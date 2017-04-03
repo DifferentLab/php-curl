@@ -18,6 +18,7 @@ use stdClass;
  * @property mixed body
  * @property mixed error
  * @property mixed headers
+ * @property mixed headers_array
  * @property mixed info
  * @property mixed json
  * @property mixed json_array
@@ -90,6 +91,8 @@ abstract class ResponseAbstract implements ResponseInterface{
 				return $this->response_error;
 			case 'headers':
 				return $this->response_headers;
+			case 'headers_array':
+				return $this->response_headers_array($this->response_headers);
 			default:
 				return false;
 		}
@@ -132,17 +135,9 @@ abstract class ResponseAbstract implements ResponseInterface{
 	protected function getBody(){
 		$body = new stdClass;
 
-		$body->content = $this->response_body;
-		$body->length  = strlen($this->response_body);
-
-		if(isset($this->curl_info->content_type) && !empty($this->curl_info->content_type)){
-			$body->content_type = $this->curl_info->content_type;
-		}
-		// @codeCoverageIgnoreStart
-		elseif(isset($this->response_headers->content_type) && !empty($this->response_headers->content_type)){
-			$body->content_type = $this->response_headers->content_type;
-		}
-		// @codeCoverageIgnoreEnd
+		$body->content      = $this->response_body;
+		$body->length       = strlen($this->response_body);
+		$body->content_type = $this->response_headers->content_type ?? $this->curl_info->content_type ?? null;
 
 		return $body;
 	}
@@ -162,6 +157,21 @@ abstract class ResponseAbstract implements ResponseInterface{
 		$this->response_error->code    = curl_errno($this->curl);
 		$this->response_error->message = curl_error($this->curl);
 		$this->response_error->version = curl_version();
+	}
+
+	/**
+	 * @param \stdClass $response_headers
+	 *
+	 * @return array
+	 */
+	protected function response_headers_array(\stdClass $response_headers):array {
+		$headers = [];
+
+		foreach($response_headers as $key => $value){
+			$headers[$key] = $value;
+		}
+
+		return $headers;
 	}
 
 }

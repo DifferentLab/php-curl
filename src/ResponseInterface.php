@@ -15,8 +15,10 @@ namespace chillerlan\TinyCurl;
  * @property mixed body
  * @property mixed error
  * @property mixed headers
+ * @property mixed headers_array
  * @property mixed info
  * @property mixed json
+ * @property mixed json_array
  */
 interface ResponseInterface{
 
