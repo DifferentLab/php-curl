@@ -13,14 +13,18 @@ namespace chillerlan\TinyCurlTest;
 use chillerlan\TinyCurl\{MultiRequest, MultiRequestOptions, URL};
 use PHPUnit\Framework\TestCase;
 
-abstract class MultiRequestTest extends TestCase{
+class MultiRequestTest extends TestCase{
 
+	 /**
+	  * @var \chillerlan\TinyCurl\MultiRequestOptions
+	  */
 	protected $options;
 
 	protected function setUp(){
-		$this->options = new MultiRequestOptions;
-		$this->options->handler     = MultiResponseHandlerTest::class;
-		$this->options->ca_info     = __DIR__.'/test-cacert.pem';
+		$this->options = new MultiRequestOptions([
+			'handler' => MultiResponseHandlerTest::class,
+			'ca_info' => __DIR__.'/test-cacert.pem',
+		]);
 	}
 
 	protected function getURLs(){
@@ -43,6 +47,7 @@ abstract class MultiRequestTest extends TestCase{
 
 	public function testMultiResponseHandler(){
 		$this->options->window_size = 3;
+		$this->options->sleep = 60 / 300 * 1000000;
 
 		$request = new MultiRequest($this->options);
 		$request->fetch($this->getURLs());
