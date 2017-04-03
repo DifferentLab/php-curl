@@ -110,6 +110,7 @@ class RequestTest extends TestCase{
 		$this->assertSame('bar', $response->json_array['args']['foo']);
 		$this->assertSame(0, $response->error->code);
 		$this->assertSame('application/json', $response->headers->{'content-type'});
+		$this->assertSame('application/json', $response->headers_array['content-type']);
 
 		$this->assertSame(false, $response->foo);
 	}
