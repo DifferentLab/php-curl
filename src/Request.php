@@ -97,26 +97,26 @@ class Request{
 	public function fetch(URL $url, array $curl_options = []):ResponseInterface {
 		$this->initCurl();
 
+		$method  = strtoupper($url->method);
 		$headers = $this->normalizeHeaders($url->headers);
 
-		if(in_array($url->method, ['POST', 'PUT'])){
+		if(in_array($method, ['PATCH', 'POST', 'PUT', 'DELETE'])){
 
-			$curl_options += $url->method === 'PUT'
-				? [CURLOPT_CUSTOMREQUEST => 'PUT']
+			$curl_options += in_array($method, ['PATCH', 'PUT', 'DELETE'])
+				? [CURLOPT_CUSTOMREQUEST => $method]
 				: [CURLOPT_POST => true];
 
-			if(!isset($headers['Content-type']) && $url->method === 'POST' && is_array($url->body)){
+			$body = $url->body;
+
+			if(!isset($headers['Content-type']) && $method === 'POST' && is_array($body)){
 				$headers += ['Content-type: application/x-www-form-urlencoded'];
-				$body     = http_build_query($url->body, '', '&', PHP_QUERY_RFC1738);
-			}
-			else{
-				$body = $url->body;
+				$body = http_build_query($body, '', '&', PHP_QUERY_RFC1738);
 			}
 
 			$curl_options += [CURLOPT_POSTFIELDS => $body];
 		}
 		else{
-			$curl_options += [CURLOPT_CUSTOMREQUEST => $url->method];
+			$curl_options += [CURLOPT_CUSTOMREQUEST => $method];
 		}
 
 		$headers += [
