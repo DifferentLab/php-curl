@@ -34,10 +34,12 @@ In case you're looking for that: go along, use Guzzle instead.
 - **MySQL** or **MariaDB** for the [GW2 API](https://api.guildwars2.com/v2) example
 
 ## Documentation
+**requires [composer](https://getcomposer.org)**
 
-### Installation using [composer](https://getcomposer.org)
+### composer.json
 You can simply clone the repo and run `composer install` in the root directory. 
-In case you want to include it elsewhere, just add the following to your *composer.json*:
+In case you want to include it elsewhere, just add the following to your *composer.json*
+(note: replace `dev-master` with a [version boundary](https://getcomposer.org/doc/articles/versions.md#summary)):
 ```json
 {
 	"require": {
@@ -50,8 +52,10 @@ In case you want to include it elsewhere, just add the following to your *compos
 ### Manual installation
 
 Download the desired version of the package from [master](https://github.com/codemasher/php-curl/archive/master.zip) or 
-[release](https://github.com/codemasher/php-curl/releases) and extract the contents to your project folder. 
-Point the namespace `chillerlan/TinyCurl` to the folder `src` of the package.
+[release](https://github.com/codemasher/php-curl/releases) and extract the contents to your project folder. After that:
+- run `composer install` to install the required dependencies and generate `/vendor/autoload.php`.
+- if you use a custom autoloader, point the namespace `chillerlan\TinyCurl` to the folder `src` of the package 
+
 
 Profit!
 
