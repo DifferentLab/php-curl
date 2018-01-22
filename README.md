@@ -6,20 +6,23 @@ A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrap
 [![Travis][travis-badge]][travis]
 [![Coverage][coverage-badge]][coverage]
 [![Scrunitizer][scrutinizer-badge]][scrutinizer]
-[![Code Climate][codeclimate-badge]][codeclimate]
+[![Packagist downloads][downloads-badge]][downloads]
+[![PayPal donate][donate-badge]][donate]
 
-[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg
+[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg?style=flat-square
 [packagist]: https://packagist.org/packages/chillerlan/php-curl
-[license-badge]: https://img.shields.io/packagist/l/chillerlan/php-curl.svg
+[license-badge]: https://img.shields.io/github/license/codemasher/php-curl.svg?style=flat-square
 [license]: https://github.com/codemasher/php-curl/blob/master/LICENSE
-[travis-badge]: https://travis-ci.org/codemasher/php-curl.svg?branch=master
+[travis-badge]: https://img.shields.io/travis/codemasher/php-curl.svg?style=flat-square
 [travis]: https://travis-ci.org/codemasher/php-curl
-[coverage-badge]: https://codecov.io/github/codemasher/php-curl/coverage.svg?branch=master
+[coverage-badge]: https://img.shields.io/codecov/c/github/codemasher/php-curl.svg?style=flat-square
 [coverage]: https://codecov.io/github/codemasher/php-curl
-[scrutinizer-badge]: https://scrutinizer-ci.com/g/codemasher/php-curl/badges/quality-score.png?b=master
+[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/codemasher/php-curl.svg?style=flat-square
 [scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
-[codeclimate-badge]: https://codeclimate.com/github/codemasher/php-curl/badges/gpa.svg
-[codeclimate]: https://codeclimate.com/github/codemasher/php-curl
+[downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-curl.svg?style=flat-square
+[downloads]: https://packagist.org/packages/chillerlan/php-curl/stats
+[donate-badge]: https://img.shields.io/badge/donate-paypal-ff33aa.svg?style=flat-square
+[donate]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WLYUNAT9ZTJZ4
 
 ##Features:
 
@@ -27,11 +30,10 @@ A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrap
  - No 87 extra layers of abstraction!
  - No fancy!
    
-In case you're looking for that: go along, use Guzzle instead. 
+In case you're looking for that: go along, use [Guzzle](https://github.com/guzzle/guzzle) instead. 
 
 ## Requirements
 - **PHP 7+**
-- **MySQL** or **MariaDB** for the [GW2 API](https://api.guildwars2.com/v2) example
 
 ## Documentation
 **requires [composer](https://getcomposer.org)**
