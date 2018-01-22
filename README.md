@@ -36,9 +36,10 @@ In case you're looking for that: go along, use [Guzzle](https://github.com/guzzl
 - **PHP 7+**
 
 ## Documentation
+### Installation
 **requires [composer](https://getcomposer.org)**
 
-### composer.json
+#### composer.json
 You can simply clone the repo and run `composer install` in the root directory. 
 In case you want to include it elsewhere, just add the following to your *composer.json*
 (note: replace `dev-master` with a [version boundary](https://getcomposer.org/doc/articles/versions.md#summary)):
@@ -51,7 +52,7 @@ In case you want to include it elsewhere, just add the following to your *compos
 }
 ```
 
-### Manual installation
+#### Manual installation
 
 Download the desired version of the package from [master](https://github.com/codemasher/php-curl/archive/master.zip) or 
 [release](https://github.com/codemasher/php-curl/releases) and extract the contents to your project folder. After that:
