@@ -24,7 +24,7 @@ A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrap
 [donate-badge]: https://img.shields.io/badge/donate-paypal-ff33aa.svg?style=flat-square
 [donate]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WLYUNAT9ZTJZ4
 
-##Features:
+## Features:
 
  - No PSR-7!
  - No 87 extra layers of abstraction!
