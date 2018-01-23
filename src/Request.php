@@ -198,7 +198,7 @@ class Request{
 		$response = $this->getResponse($url);
 
 		if(!$response instanceof ResponseInterface){
-			return '';
+			return ''; // @codeCoverageIgnore
 		}
 
 		$info    = $response->info;
