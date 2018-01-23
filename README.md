@@ -1,4 +1,4 @@
-# codemasher/php-curl
+# chillerlan/php-curl
 A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrapper, mostly for API scraping purposes.
 
 [![version][packagist-badge]][packagist]
@@ -11,14 +11,14 @@ A [simple](https://twitter.com/andrey_butov/status/654035612513796096) cURL wrap
 
 [packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-curl.svg?style=flat-square
 [packagist]: https://packagist.org/packages/chillerlan/php-curl
-[license-badge]: https://img.shields.io/github/license/codemasher/php-curl.svg?style=flat-square
-[license]: https://github.com/codemasher/php-curl/blob/master/LICENSE
-[travis-badge]: https://img.shields.io/travis/codemasher/php-curl.svg?style=flat-square
-[travis]: https://travis-ci.org/codemasher/php-curl
-[coverage-badge]: https://img.shields.io/codecov/c/github/codemasher/php-curl.svg?style=flat-square
-[coverage]: https://codecov.io/github/codemasher/php-curl
-[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/codemasher/php-curl.svg?style=flat-square
-[scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-curl
+[license-badge]: https://img.shields.io/github/license/chillerlan/php-curl.svg?style=flat-square
+[license]: https://github.com/chillerlan/php-curl/blob/master/LICENSE
+[travis-badge]: https://img.shields.io/travis/chillerlan/php-curl.svg?style=flat-square
+[travis]: https://travis-ci.org/chillerlan/php-curl
+[coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-curl.svg?style=flat-square
+[coverage]: https://codecov.io/github/chillerlan/php-curl
+[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-curl.svg?style=flat-square
+[scrutinizer]: https://scrutinizer-ci.com/g/chillerlan/php-curl
 [downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-curl.svg?style=flat-square
 [downloads]: https://packagist.org/packages/chillerlan/php-curl/stats
 [donate-badge]: https://img.shields.io/badge/donate-paypal-ff33aa.svg?style=flat-square
@@ -34,6 +34,8 @@ In case you're looking for that: go along, use [Guzzle](https://github.com/guzzl
 
 ## Requirements
 - **PHP 7+**
+  - the cURL extension[](http://php.net/manual/en/book.curl.php)
+  - probably a [CA certificate bundle](https://curl.haxx.se/ca/)
 
 ## Documentation
 ### Installation
@@ -54,8 +56,8 @@ In case you want to include it elsewhere, just add the following to your *compos
 
 #### Manual installation
 
-Download the desired version of the package from [master](https://github.com/codemasher/php-curl/archive/master.zip) or 
-[release](https://github.com/codemasher/php-curl/releases) and extract the contents to your project folder. After that:
+Download the desired version of the package from [master](https://github.com/chillerlan/php-curl/archive/master.zip) or 
+[release](https://github.com/chillerlan/php-curl/releases) and extract the contents to your project folder. After that:
 - run `composer install` to install the required dependencies and generate `/vendor/autoload.php`.
 - if you use a custom autoloader, point the namespace `chillerlan\TinyCurl` to the folder `src` of the package 
 
