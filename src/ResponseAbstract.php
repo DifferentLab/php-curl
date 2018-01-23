@@ -160,11 +160,11 @@ abstract class ResponseAbstract implements ResponseInterface{
 	}
 
 	/**
-	 * @param iterable $response_headers
+	 * @param array $response_headers
 	 *
 	 * @return array
 	 */
-	protected function response_headers_array(iterable $response_headers):array {
+	protected function response_headers_array(array $response_headers):array {
 		$headers = [];
 
 		foreach($response_headers as $key => $value){
