@@ -12,10 +12,17 @@
 
 namespace chillerlan\TinyCurl;
 
+use chillerlan\Traits\{Container, ContainerInterface};
+
 /**
- *
+ * @property string $user_agent
+ * @property int    $timeout
+ * @property array  $curl_options
+ * @property string $ca_info
+ * @property int    $max_redirects
  */
-class RequestOptions{
+class RequestOptions implements ContainerInterface{
+	use Container;
 
 	/**
 	 * @var string
@@ -46,21 +53,5 @@ class RequestOptions{
 	 * @var int
 	 */
 	public $max_redirects = 0;
-
-	/**
-	 * RequestOptions constructor.
-	 *
-	 * @param array $properties
-	 */
-	public function __construct(array $properties = []){
-
-		foreach($properties as $key => $value){
-			if(property_exists($this, $key)){
-				$this->{$key} = $value;
-			}
-		}
-
-	}
-
 
 }
