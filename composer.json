@@ -1,19 +1,24 @@
 {
 	"name": "chillerlan/php-curl",
 	"description": "A tiny cURL wrapper. PHP 7+",
-	"homepage": "https://github.com/codemasher/php-curl",
+	"homepage": "https://github.com/chillerlan/php-curl",
 	"license": "MIT",
 	"type": "library",
 	"keywords": [
-		"curl",
-		"wrapper"
+		"curl", "wrapper", "multi", "url", "extract"
 	],
 	"authors": [
 		{
 			"name": "Smiley",
-			"email": "smiley@chillerlan.net"
+			"email": "smiley@chillerlan.net",
+			"homepage": "https://github.com/codemasher"
 		}
 	],
+	"support": {
+		"issues": "https://github.com/chillerlan/php-curl/issues",
+		"source": "https://github.com/chillerlan/php-curl"
+	},
+	"minimum-stability": "stable",
 	"require": {
 		"php": ">=7.0.7"
 	},
