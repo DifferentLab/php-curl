@@ -10,7 +10,9 @@
 
 namespace chillerlan\TinyCurlTest;
 
-use chillerlan\TinyCurl\{Request, RequestOptions, Response, URL};
+use chillerlan\TinyCurl\{
+	Request, RequestOptions, Response, ResponseInterface, URL
+};
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase{
@@ -64,7 +66,14 @@ class RequestTest extends TestCase{
 	public function testFetch($method, $extra_headers){
 		$url = new URL(self::HTTPBIN.'/'.$method, ['foo' => 'bar'], $method, ['huh' => 'wtf'], ['what' => 'nope'] + $extra_headers);
 
-		$response = $this->request->fetch($url)->json;
+		$response = $this->request->fetch($url);
+
+		if(!$response instanceof ResponseInterface){
+			$this->markTestSkipped('httpbin timeout');
+			return $this;
+		}
+
+		$response = $response->json;
 
 		$this->assertSame(self::HTTPBIN.'/'.$method.'?foo=bar', $response->url);
 		$this->assertSame('bar', $response->args->foo);
