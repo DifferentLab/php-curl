@@ -12,6 +12,8 @@
 
 namespace chillerlan\TinyCurl;
 
+use chillerlan\Traits\ContainerInterface;
+
 /**
  *
  */
@@ -32,27 +34,27 @@ class Request{
 	/**
 	 * Request constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\RequestOptions $options
+	 * @param \chillerlan\Traits\ContainerInterface $options
 	 */
-	public function __construct(RequestOptions $options = null){
+	public function __construct(ContainerInterface $options = null){
 		$this->setOptions($options ?: new RequestOptions);
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\RequestOptions $options
+	 * @param \chillerlan\Traits\ContainerInterface $options
 	 *
 	 * @return \chillerlan\TinyCurl\Request
 	 */
-	public function setOptions(RequestOptions $options):Request {
+	public function setOptions(ContainerInterface $options):Request {
 		$this->options = $options;
 
 		return $this;
 	}
 
 	/**
-	 * @return \chillerlan\TinyCurl\RequestOptions
+	 * @return \chillerlan\Traits\ContainerInterface
 	 */
-	public function getOptions():RequestOptions{
+	public function getOptions():ContainerInterface{
 		return $this->options;
 	}
 

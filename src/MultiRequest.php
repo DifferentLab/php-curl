@@ -12,6 +12,8 @@
 
 namespace chillerlan\TinyCurl;
 
+use chillerlan\Traits\ContainerInterface;
+
 /**
  * @link http://www.onlineaspect.com/2009/01/26/how-to-use-curl_multi-without-blocking/
  * @link https://github.com/joshfraser/rolling-curl
@@ -61,9 +63,9 @@ class MultiRequest{
 	/**
 	 * MultiRequest constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions|null $options
+	 * @param \chillerlan\Traits\ContainerInterface|null $options
 	 */
-	public function __construct(MultiRequestOptions $options = null){
+	public function __construct(ContainerInterface $options = null){
 		$this->setOptions($options ?: new MultiRequestOptions);
 	}
 
@@ -79,11 +81,11 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
+	 * @param \chillerlan\Traits\ContainerInterface $options
 	 *
 	 * @return \chillerlan\TinyCurl\MultiRequest
 	 */
-	public function setOptions(MultiRequestOptions $options):MultiRequest {
+	public function setOptions(ContainerInterface $options):MultiRequest {
 		$this->options = $options;
 
 		if($this->options->handler){
