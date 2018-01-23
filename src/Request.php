@@ -89,10 +89,9 @@ class Request{
 
 	/**
 	 * @param \chillerlan\TinyCurl\URL $url
-	 * @param array                    $curl_options
+	 * @param array|null               $curl_options
 	 *
 	 * @return \chillerlan\TinyCurl\ResponseInterface
-	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function fetch(URL $url, array $curl_options = []):ResponseInterface {
 		$this->initCurl();
@@ -198,20 +197,23 @@ class Request{
 
 		$response = $this->getResponse($url);
 
+		if(!$response instanceof ResponseInterface){
+			return '';
+		}
+
 		$info    = $response->info;
 		$headers = $response->headers;
 
-		switch(true){
-			// check curl_info()
-			case in_array($info->http_code, range(300, 308), true) && isset($info->redirect_url) && !empty($info->redirect_url):
-				return $info->redirect_url;
-			// look for a location header
-			case isset($headers->location) && !empty($headers->location):
-				return $headers->location; // @codeCoverageIgnore
-			default:
-				return '';
+		// check curl_info()
+		if(in_array($info->http_code, range(300, 308), true) && isset($info->redirect_url) && !empty($info->redirect_url)){
+			return $info->redirect_url;
+		}
+		// look for a location header
+		elseif(isset($headers->location) && !empty($headers->location)){
+			return $headers->location; // @codeCoverageIgnore
 		}
 
+		return '';
 	}
 
 }

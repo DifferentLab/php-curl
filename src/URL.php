@@ -15,6 +15,8 @@
 namespace chillerlan\TinyCurl;
 
 /**
+ * @todo -> Container
+ *
  * @property string url
  * @property string method
  * @property string scheme
@@ -102,8 +104,6 @@ class URL{
 	 * @param string $method
 	 * @param mixed  $body
 	 * @param array  $headers
-	 *
-	 * @throws \chillerlan\TinyCurl\URLException
 	 */
 	public function __construct(string $url, array $params = [], string $method = 'GET', $body = null, array $headers = []){
 		$this->url     = $url;
@@ -112,13 +112,21 @@ class URL{
 		$this->headers = $headers;
 		$this->method  = strtoupper($method);
 
+		$this->parse();
+	}
+
+	/**
+	 * @throws \chillerlan\TinyCurl\URLException
+	 * @return void
+	 */
+	protected function parse(){
 		$url = parse_url($this->url);
 
 		foreach(self::URL_PARTS as $part){
-			$this->{$part} = !isset($url[$part]) ? null : $url[$part];
+			$this->{$part} = $url[$part] ?? null;
 		}
 
-		if($this->scheme && !in_array(strtolower($this->scheme), self::ALLOWED_SCHEMES)){
+		if($this->scheme !== null && !in_array(strtolower($this->scheme), self::ALLOWED_SCHEMES, true)){
 			throw new URLException('invalid scheme: '.$this->scheme);
 		}
 
@@ -130,7 +138,7 @@ class URL{
 			throw new URLException('invalid method: '.$this->method);
 		}
 
-		if($this->query){
+		if($this->query !== null){
 			parse_str($this->query, $this->parsedquery);
 		}
 
