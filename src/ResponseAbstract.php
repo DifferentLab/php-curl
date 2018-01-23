@@ -15,6 +15,8 @@ namespace chillerlan\TinyCurl;
 use stdClass;
 
 /**
+ * @todo: Container
+ *
  * @property mixed body
  * @property mixed error
  * @property mixed headers
@@ -88,7 +90,7 @@ abstract class ResponseAbstract implements ResponseInterface{
 			case 'headers':
 				return $this->response_headers;
 			case 'headers_array':
-				return $this->response_headers_array($this->response_headers);
+				return $this->response_headers_array((array)$this->response_headers);
 			default:
 				return false;
 		}
@@ -158,11 +160,11 @@ abstract class ResponseAbstract implements ResponseInterface{
 	}
 
 	/**
-	 * @param \stdClass $response_headers
+	 * @param iterable $response_headers
 	 *
 	 * @return array
 	 */
-	protected function response_headers_array(\stdClass $response_headers):array {
+	protected function response_headers_array(iterable $response_headers):array {
 		$headers = [];
 
 		foreach($response_headers as $key => $value){
