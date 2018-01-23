@@ -12,11 +12,4 @@
 
 namespace chillerlan\TinyCurl;
 
-use Exception;
-
-/**
- *
- */
-class URLException extends Exception{
-
-}
+class URLException extends \Exception{}

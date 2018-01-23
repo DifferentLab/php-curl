@@ -61,7 +61,7 @@ class MultiRequest{
 	/**
 	 * MultiRequest constructor.
 	 *
-	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
+	 * @param \chillerlan\TinyCurl\MultiRequestOptions|null $options
 	 */
 	public function __construct(MultiRequestOptions $options = null){
 		$this->setOptions($options ?: new MultiRequestOptions);
@@ -82,7 +82,6 @@ class MultiRequest{
 	 * @param \chillerlan\TinyCurl\MultiRequestOptions $options
 	 *
 	 * @return \chillerlan\TinyCurl\MultiRequest
-	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	public function setOptions(MultiRequestOptions $options):MultiRequest {
 		$this->options = $options;
@@ -105,7 +104,7 @@ class MultiRequest{
 	}
 
 	/**
-	 * @param \chillerlan\TinyCurl\MultiResponseHandlerInterface $handler
+	 * @param \chillerlan\TinyCurl\MultiResponseHandlerInterface|null $handler
 	 *
 	 * @return \chillerlan\TinyCurl\MultiRequest
 	 * @throws \chillerlan\TinyCurl\RequestException

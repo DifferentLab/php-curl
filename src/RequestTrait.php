@@ -12,9 +12,6 @@
 
 namespace chillerlan\TinyCurl;
 
-/**
- *
- */
 trait RequestTrait{
 
 	/**
@@ -33,7 +30,6 @@ trait RequestTrait{
 	 * @param array  $curl_options
 	 *
 	 * @return \chillerlan\TinyCurl\ResponseInterface
-	 * @throws \chillerlan\TinyCurl\RequestException
 	 */
 	protected function fetch($url, array $params = [], array $curl_options = []){
 		$requestOptions               = new RequestOptions;

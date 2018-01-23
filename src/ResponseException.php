@@ -1,5 +1,6 @@
 <?php
 /**
+ * Class ResponseException
  *
  * @filesource   ResponseException.php
  * @created      13.02.2016
@@ -11,11 +12,4 @@
 
 namespace chillerlan\TinyCurl;
 
-use Exception;
-
-/**
- * Class ResponseException
- */
-class ResponseException extends Exception{
-
-}
+class ResponseException extends \Exception{}

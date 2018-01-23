@@ -13,7 +13,9 @@
 namespace chillerlan\TinyCurl;
 
 /**
- *
+ * @property string    $handler
+ * @property int       $window_size
+ * @property int|float $sleep
  */
 class MultiRequestOptions extends RequestOptions{
 

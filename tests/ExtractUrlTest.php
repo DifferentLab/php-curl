@@ -30,7 +30,7 @@ class ExtractUrlTest extends TestCase{
 		return [
 			[
 				[
-					'https://t.co/ZSS6nVOcVp', // i wonder how long twitter will store this URL since the test tweet has been deleted. update: likely forever.
+					'https://t.co/ZSS6nVOcVp', // i wonder how long twitter will store this URL since the test tweet has been deleted. [update: likely forever.] [update 2: in 2018 still there...]
 					'http://bit.ly/1oesmr8',
 					'http://tinyurl.com/jvc5y98',
 					'https://api.guildwars2.com/v2/build',

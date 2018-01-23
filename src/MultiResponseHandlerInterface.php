@@ -12,9 +12,6 @@
 
 namespace chillerlan\TinyCurl;
 
-/**
- *
- */
 interface MultiResponseHandlerInterface{
 
 	/**

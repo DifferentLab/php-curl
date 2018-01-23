@@ -14,9 +14,7 @@ namespace chillerlan\TinyCurl;
 
 class Response extends ResponseAbstract{
 
-	/**
-	 * Fills self::$response_body and calls self::getInfo()
-	 */
+	/** @inheritdoc */
 	protected function exec(){
 		curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, [$this, 'headerLine']);
 		$this->response_body = curl_exec($this->curl);

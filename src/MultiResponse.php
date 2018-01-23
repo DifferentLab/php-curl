@@ -17,9 +17,7 @@ namespace chillerlan\TinyCurl;
  */
 class MultiResponse extends ResponseAbstract{
 
-	/**
-	 * Fills self::$response_body and calls self::getInfo()
-	 */
+	/** @inheritdoc */
 	protected function exec(){
 		$response = explode("\r\n\r\n", curl_multi_getcontent($this->curl), 2);
 		$headers = isset($response[0]) ? explode("\r\n", $response[0]) : null;

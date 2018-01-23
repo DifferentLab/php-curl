@@ -71,11 +71,7 @@ abstract class ResponseAbstract implements ResponseInterface{
 		$this->exec();
 	}
 
-	/**
-	 * @param string $property
-	 *
-	 * @return mixed
-	 */
+	/** @inheritdoc */
 	public function __get($property){
 
 		switch($property){
@@ -101,6 +97,8 @@ abstract class ResponseAbstract implements ResponseInterface{
 
 	/**
 	 * executes the cURL call, fills self::$response_body and calls self::getInfo()
+	 *
+	 * @return void
 	 */
 	abstract protected function exec();
 
@@ -143,7 +141,7 @@ abstract class ResponseAbstract implements ResponseInterface{
 	}
 
 	/**
-	 *
+	 * @return void
 	 */
 	protected function getInfo(){
 		$curl_info = curl_getinfo($this->curl);
