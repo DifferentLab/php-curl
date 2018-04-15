@@ -12,7 +12,7 @@
 
 namespace chillerlan\TinyCurl;
 
-use chillerlan\Traits\{Container, ContainerInterface};
+use chillerlan\Traits\ContainerAbstract;
 
 /**
  * @property string $user_agent
@@ -21,37 +21,7 @@ use chillerlan\Traits\{Container, ContainerInterface};
  * @property string $ca_info
  * @property int    $max_redirects
  */
-class RequestOptions implements ContainerInterface{
-	use Container;
-
-	/**
-	 * @var string
-	 */
-	public $user_agent = 'chillerLAN-php-curl';
-
-	/**
-	 * @var int
-	 */
-	public $timeout = 10;
-
-	/**
-	 * options for each curl instance
-	 *
-	 * @var array
-	 */
-	public $curl_options = [];
-
-	/**
-	 * CA Root Certificates for use with CURL/SSL
-	 *
-	 * @var string
-	 * @link https://curl.haxx.se/ca/cacert.pem
-	 */
-	public $ca_info = null;
-
-	/**
-	 * @var int
-	 */
-	public $max_redirects = 0;
+class RequestOptions extends ContainerAbstract{
+	use RequestOptionsTrait;
 
 }

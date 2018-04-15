@@ -86,7 +86,7 @@ class Request{
 			CURLOPT_TIMEOUT        => $this->options->timeout,
 		]);
 
-		curl_setopt_array($this->curl, $this->options->curl_options);
+		curl_setopt_array($this->curl, $this->options->curl_options ?? []);
 	}
 
 	/**

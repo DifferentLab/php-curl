@@ -18,26 +18,6 @@ namespace chillerlan\TinyCurl;
  * @property int|float $sleep
  */
 class MultiRequestOptions extends RequestOptions{
-
-	/**
-	 * an optional handler FQCN
-	 *
-	 * @var string
-	 */
-	public $handler = null;
-
-	/**
-	 * maximum of concurrent requests
-	 *
-	 * @var int
-	 */
-	public $window_size = 5;
-
-	/**
-	 * sleep timer (milliseconds) between each fired request on startup
-	 *
-	 * @var int|float
-	 */
-	public $sleep = null;
+	use MultiRequestOptionsTrait;
 
 }
