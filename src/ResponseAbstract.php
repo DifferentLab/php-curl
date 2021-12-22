@@ -61,7 +61,7 @@ abstract class ResponseAbstract implements ResponseInterface{
 	 */
 	public function __construct($curl){
 
-		if(!is_resource($curl)){
+		if($curl === false){
 			throw new ResponseException('no cURL handle given');
 		}
 

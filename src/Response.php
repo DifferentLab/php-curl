@@ -27,7 +27,7 @@ class Response extends ResponseAbstract{
 	 * @codeCoverageIgnore
 	 */
 	public function __destruct(){
-		if(is_resource($this->curl)){
+		if($this->curl !== false){
 			curl_close($this->curl);
 		}
 	}
